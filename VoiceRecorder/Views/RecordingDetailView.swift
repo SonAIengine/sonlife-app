@@ -124,11 +124,11 @@ struct RecordingDetailView: View {
             try? AVAudioSession.sharedInstance().setCategory(.playback)
             player.play()
             isPlaying = true
-            timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+            timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [self] t in
                 playbackTime = player.currentTime
                 if !player.isPlaying {
                     isPlaying = false
-                    self.timer?.invalidate()
+                    t.invalidate()
                 }
             }
         }

@@ -20,9 +20,8 @@ final class VADMonitor {
     private var engine: RecordingEngine?
     private var timer: Timer?
 
-    // dB thresholds
     var silenceThresholdDB: Float = -40.0
-    var resumeThresholdDB: Float = -35.0 // hysteresis to avoid flapping
+    var resumeThresholdDB: Float = -35.0
     var silenceTimeoutSeconds: TimeInterval = 30.0
 
     var silenceDuration: TimeInterval {
@@ -35,9 +34,11 @@ final class VADMonitor {
         state = .active
         silenceStartTime = nil
 
-        timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+        let t = Timer(timeInterval: 0.1, repeats: true) { [weak self] _ in
             self?.poll()
         }
+        RunLoop.main.add(t, forMode: .common)
+        timer = t
     }
 
     func stop() {
@@ -67,12 +68,7 @@ final class VADMonitor {
                 if silenceStartTime == nil {
                     silenceStartTime = Date()
                 }
-                if silenceDuration >= silenceTimeoutSeconds {
-                    transition(to: .silencePaused)
-                    delegate?.vadDidDetectSilence()
-                } else {
-                    transition(to: .silenceDetected)
-                }
+                transition(to: .silenceDetected)
             } else {
                 silenceStartTime = nil
             }

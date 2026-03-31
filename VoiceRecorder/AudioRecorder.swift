@@ -1,5 +1,6 @@
 import AVFoundation
 import Speech
+import UIKit
 
 @Observable
 final class AudioRecorder: RecordingEngineDelegate, VADMonitorDelegate, AudioSessionHandlerDelegate {
@@ -28,20 +29,49 @@ final class AudioRecorder: RecordingEngineDelegate, VADMonitorDelegate, AudioSes
     private var timer: Timer?
     private let fileManager = FileManager.default
 
-    var recordingsDirectory: URL {
-        let docs = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let dir = docs.appendingPathComponent("Recordings")
-        if !fileManager.fileExists(atPath: dir.path) {
-            try? fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
-        }
-        return dir
-    }
+    let recordingsDirectory: URL
 
     init() {
+        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let dir = docs.appendingPathComponent("Recordings")
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        recordingsDirectory = dir
         engine.delegate = self
         vad.delegate = self
         audioSessionHandler.delegate = self
         loadRecordings()
+        observeAppLifecycle()
+    }
+
+    // MARK: - App Lifecycle (#9)
+
+    private func observeAppLifecycle() {
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.willTerminateNotification,
+            object: nil, queue: .main
+        ) { [weak self] _ in
+            self?.handleAppTermination()
+        }
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.willResignActiveNotification,
+            object: nil, queue: .main
+        ) { [weak self] _ in
+            self?.handleAppResignActive()
+        }
+    }
+
+    private func handleAppTermination() {
+        if isLifeLogActive {
+            engine.stop()
+            sessionManager.finalizeSession()
+        }
+    }
+
+    private func handleAppResignActive() {
+        // 백그라운드 진입 시 세션 메타데이터 즉시 저장 (강제 종료 대비)
+        if isLifeLogActive, let session = sessionManager.activeSession {
+            sessionManager.saveCurrentState()
+        }
     }
 
     // MARK: - LifeLog Mode
@@ -58,21 +88,15 @@ final class AudioRecorder: RecordingEngineDelegate, VADMonitorDelegate, AudioSes
         isLifeLogActive = true
         lifeLogSessionTime = 0
 
-        engine.start { [weak self] index in
+        engine.start(urlProvider: { [weak self] index in
             guard let self, let activeSession = self.sessionManager.activeSession else {
                 return URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("temp.m4a")
             }
             return self.sessionManager.chunkURL(for: activeSession, index: index)
-        }
+        }, startingChunkIndex: 0)
 
         vad.start(engine: engine)
-
-        // LifeLog 시간 업데이트 타이머
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            guard let self else { return }
-            self.lifeLogSessionTime = (self.sessionManager.activeSession?.totalDuration ?? 0) + self.engine.currentTime
-            self.vadSilenceDuration = self.vad.silenceDuration
-        }
+        startLifeLogTimer()
     }
 
     func stopLifeLog() {
@@ -87,42 +111,57 @@ final class AudioRecorder: RecordingEngineDelegate, VADMonitorDelegate, AudioSes
         vadState = .active
     }
 
-    // MARK: - RecordingEngineDelegate
+    private func startLifeLogTimer() {
+        let t = Timer(timeInterval: 1.0, repeats: true) { [weak self] _ in
+            guard let self else { return }
+            self.lifeLogSessionTime = (self.sessionManager.activeSession?.totalDuration ?? 0) + self.engine.currentTime
+            self.vadSilenceDuration = self.vad.silenceDuration
+        }
+        RunLoop.main.add(t, forMode: .common)
+        timer = t
+    }
 
-    func engineDidFinishChunk(url: URL, duration: TimeInterval, index: Int) {
-        sessionManager.addChunk(url: url, duration: duration, index: index)
+    // MARK: - RecordingEngineDelegate (#5 메인 스레드 보장, #7 startDate 전달)
+
+    func engineDidFinishChunk(url: URL, duration: TimeInterval, index: Int, startDate: Date) {
+        DispatchQueue.main.async { [weak self] in
+            self?.sessionManager.addChunk(url: url, duration: duration, index: index, startDate: startDate)
+        }
     }
 
     func engineDidUpdateMeters(averagePower: Float, peakPower: Float) {
-        currentPowerLevel = averagePower
+        DispatchQueue.main.async { [weak self] in
+            self?.currentPowerLevel = averagePower
+        }
     }
 
     func engineDidEncounterError(_ error: Error) {
-        errorMessage = "녹음 엔진 오류: \(error.localizedDescription)"
+        DispatchQueue.main.async { [weak self] in
+            self?.errorMessage = "녹음 엔진 오류: \(error.localizedDescription)"
+        }
     }
 
-    // MARK: - VADMonitorDelegate
+    // MARK: - VADMonitorDelegate (#5 메인 스레드 보장)
 
     func vadDidDetectSilence() {
-        // 무음 감지 → 현재 청크를 silence로 마킹
-        // 녹음은 계속 유지 (미터링 위해)
+        // 무음 감지 → 녹음 계속 유지 (미터링 위해)
     }
 
     func vadDidDetectVoice() {
-        // 소리 재감지 → 새 청크 시작 (무음 구간 분리)
         engine.splitNow()
         vad.reset()
     }
 
     func vadStateDidChange(_ state: VADState) {
-        vadState = state
+        DispatchQueue.main.async { [weak self] in
+            self?.vadState = state
+        }
     }
 
-    // MARK: - AudioSessionHandlerDelegate
+    // MARK: - AudioSessionHandlerDelegate (#2 인덱스 중복 수정)
 
     func audioSessionWasInterrupted() {
         if isLifeLogActive {
-            // 전화 등 인터럽션 → 현재 청크 종료, 일시 정지 상태
             engine.stop()
             vad.stop()
             timer?.invalidate()
@@ -131,33 +170,26 @@ final class AudioRecorder: RecordingEngineDelegate, VADMonitorDelegate, AudioSes
 
     func audioSessionInterruptionEnded(shouldResume: Bool) {
         if isLifeLogActive && shouldResume {
-            // 인터럽션 종료 → 녹음 재개
             guard let session = sessionManager.activeSession else { return }
             let nextIndex = session.chunkCount
 
-            engine.start { [weak self] index in
+            engine.start(urlProvider: { [weak self] index in
                 guard let self, let activeSession = self.sessionManager.activeSession else {
                     return URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("temp.m4a")
                 }
-                return self.sessionManager.chunkURL(for: activeSession, index: nextIndex + index)
-            }
+                return self.sessionManager.chunkURL(for: activeSession, index: index)
+            }, startingChunkIndex: nextIndex)
 
             vad.start(engine: engine)
-
-            timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-                guard let self else { return }
-                self.lifeLogSessionTime = (self.sessionManager.activeSession?.totalDuration ?? 0) + self.engine.currentTime
-                self.vadSilenceDuration = self.vad.silenceDuration
-            }
+            startLifeLogTimer()
         }
     }
 
     func audioRouteChanged(event: AudioRouteChangeEvent) {
-        // 이어폰 탈착 시 녹음은 자동으로 내장 마이크로 전환됨 (iOS 기본 동작)
-        // 별도 처리 불필요
+        // iOS가 자동으로 내장 마이크로 전환
     }
 
-    // MARK: - Manual Recording Mode (기존 유지)
+    // MARK: - Manual Recording Mode
 
     func startRecording() {
         let session = AVAudioSession.sharedInstance()
@@ -241,7 +273,7 @@ final class AudioRecorder: RecordingEngineDelegate, VADMonitorDelegate, AudioSes
             .sorted { $0.date > $1.date }
     }
 
-    // MARK: - Private (Manual Mode)
+    // MARK: - Private
 
     private func startManualTimer() {
         timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
@@ -251,10 +283,10 @@ final class AudioRecorder: RecordingEngineDelegate, VADMonitorDelegate, AudioSes
     }
 
     private func transcribe(url: URL) {
-        SFSpeechRecognizer.requestAuthorization { status in
+        SFSpeechRecognizer.requestAuthorization { [weak self] status in
             guard status == .authorized else {
                 DispatchQueue.main.async {
-                    self.errorMessage = "음성 인식 권한이 필요합니다."
+                    self?.errorMessage = "음성 인식 권한이 필요합니다."
                 }
                 return
             }
@@ -264,7 +296,7 @@ final class AudioRecorder: RecordingEngineDelegate, VADMonitorDelegate, AudioSes
 
             guard let recognizer, recognizer.isAvailable else {
                 DispatchQueue.main.async {
-                    self.errorMessage = "음성 인식을 사용할 수 없습니다."
+                    self?.errorMessage = "음성 인식을 사용할 수 없습니다."
                 }
                 return
             }
@@ -272,17 +304,17 @@ final class AudioRecorder: RecordingEngineDelegate, VADMonitorDelegate, AudioSes
             let request = SFSpeechURLRecognitionRequest(url: url)
             request.shouldReportPartialResults = false
 
-            recognizer.recognitionTask(with: request) { result, error in
+            recognizer.recognitionTask(with: request) { [weak self] result, error in
                 if let result, result.isFinal {
                     let text = result.bestTranscription.formattedString
                     let txtURL = url.deletingPathExtension().appendingPathExtension("txt")
                     try? text.write(to: txtURL, atomically: true, encoding: .utf8)
                     DispatchQueue.main.async {
-                        self.loadRecordings()
+                        self?.loadRecordings()
                     }
                 } else if let error {
                     DispatchQueue.main.async {
-                        self.errorMessage = "STT 변환 실패: \(error.localizedDescription)"
+                        self?.errorMessage = "STT 변환 실패: \(error.localizedDescription)"
                     }
                 }
             }

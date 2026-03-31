@@ -1,7 +1,7 @@
 import AVFoundation
 
 protocol RecordingEngineDelegate: AnyObject {
-    func engineDidFinishChunk(url: URL, duration: TimeInterval, index: Int)
+    func engineDidFinishChunk(url: URL, duration: TimeInterval, index: Int, startDate: Date)
     func engineDidUpdateMeters(averagePower: Float, peakPower: Float)
     func engineDidEncounterError(_ error: Error)
 }
@@ -11,17 +11,15 @@ final class RecordingEngine {
 
     private(set) var isRecording = false
     private var currentRecorder: AVAudioRecorder?
-    private var nextRecorder: AVAudioRecorder?
     private var meteringTimer: Timer?
     private var chunkTimer: Timer?
     private var currentChunkStartTime: Date?
-    private var currentChunkIndex = 0
+    private(set) var currentChunkIndex = 0
     private var currentChunkURL: URL?
     private var chunkDuration: TimeInterval
     private var audioSettings: [String: Any]
     private var urlProvider: ((Int) -> URL)?
 
-    // STT 최적화 설정: 16kHz mono AAC 32kbps (~14.4MB/hour)
     static let lifeLogSettings: [String: Any] = [
         AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
         AVSampleRateKey: 16000,
@@ -30,7 +28,6 @@ final class RecordingEngine {
         AVEncoderBitRateKey: 32000
     ]
 
-    // 수동 녹음용: 44.1kHz mono AAC high quality
     static let manualSettings: [String: Any] = [
         AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
         AVSampleRateKey: 44100,
@@ -43,20 +40,22 @@ final class RecordingEngine {
         self.audioSettings = audioSettings
     }
 
-    func start(urlProvider: @escaping (Int) -> URL) {
+    func start(urlProvider: @escaping (Int) -> URL, startingChunkIndex: Int = 0) {
         self.urlProvider = urlProvider
-        currentChunkIndex = 0
-        startChunk(index: 0)
+        currentChunkIndex = startingChunkIndex
+        startChunk(index: startingChunkIndex)
 
-        // 미터링 타이머 (10Hz)
-        meteringTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+        let mTimer = Timer(timeInterval: 0.1, repeats: true) { [weak self] _ in
             self?.updateMeters()
         }
+        RunLoop.main.add(mTimer, forMode: .common)
+        meteringTimer = mTimer
 
-        // 청크 분할 타이머 (0.25초마다 체크)
-        chunkTimer = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { [weak self] _ in
+        let cTimer = Timer(timeInterval: 0.25, repeats: true) { [weak self] _ in
             self?.checkChunkSplit()
         }
+        RunLoop.main.add(cTimer, forMode: .common)
+        chunkTimer = cTimer
 
         isRecording = true
     }
@@ -68,8 +67,6 @@ final class RecordingEngine {
         chunkTimer = nil
 
         finalizeCurrentChunk()
-        nextRecorder?.stop()
-        nextRecorder = nil
         isRecording = false
     }
 
@@ -78,16 +75,10 @@ final class RecordingEngine {
         return currentRecorder?.averagePower(forChannel: 0) ?? -160.0
     }
 
-    func currentPeakPower() -> Float {
-        currentRecorder?.updateMeters()
-        return currentRecorder?.peakPower(forChannel: 0) ?? -160.0
-    }
-
     var currentTime: TimeInterval {
         currentRecorder?.currentTime ?? 0
     }
 
-    // 현재 청크를 종료하고 새 청크 시작 (VAD에서 호출)
     func splitNow() {
         let nextIndex = currentChunkIndex + 1
         finalizeCurrentChunk()
@@ -123,8 +114,8 @@ final class RecordingEngine {
         recorder.stop()
         currentRecorder = nil
 
-        if duration > 0.5 { // 0.5초 미만 청크는 버림
-            delegate?.engineDidFinishChunk(url: url, duration: duration, index: currentChunkIndex)
+        if duration > 0.5 {
+            delegate?.engineDidFinishChunk(url: url, duration: duration, index: currentChunkIndex, startDate: startTime)
         } else {
             try? FileManager.default.removeItem(at: url)
         }
@@ -133,7 +124,6 @@ final class RecordingEngine {
     private func checkChunkSplit() {
         guard let recorder = currentRecorder else { return }
         if recorder.currentTime >= chunkDuration {
-            // Gapless split: 새 recorder 먼저 시작 → 기존 stop
             let nextIndex = currentChunkIndex + 1
             guard let urlProvider else { return }
             let nextURL = urlProvider(nextIndex)
@@ -142,18 +132,17 @@ final class RecordingEngine {
                 let next = try AVAudioRecorder(url: nextURL, settings: audioSettings)
                 next.isMeteringEnabled = true
                 next.prepareToRecord()
-                next.record() // 새 녹음 먼저 시작
+                next.record()
 
-                // 기존 청크 종료
                 let duration = recorder.currentTime
                 let url = currentChunkURL
+                let startTime = currentChunkStartTime
                 recorder.stop()
 
-                if duration > 0.5, let url {
-                    delegate?.engineDidFinishChunk(url: url, duration: duration, index: currentChunkIndex)
+                if duration > 0.5, let url, let startTime {
+                    delegate?.engineDidFinishChunk(url: url, duration: duration, index: currentChunkIndex, startDate: startTime)
                 }
 
-                // 스왑
                 currentRecorder = next
                 currentChunkURL = nextURL
                 currentChunkStartTime = Date()

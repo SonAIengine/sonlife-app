@@ -9,23 +9,21 @@ final class SessionManager {
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 
-    var sessionsDirectory: URL {
-        let docs = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let dir = docs.appendingPathComponent("LifeLog")
-        if !fileManager.fileExists(atPath: dir.path) {
-            try? fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
-        }
-        return dir
-    }
+    let sessionsDirectory: URL
 
     init() {
+        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let dir = docs.appendingPathComponent("LifeLog")
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        sessionsDirectory = dir
         encoder.dateEncodingStrategy = .iso8601
         decoder.dateDecodingStrategy = .iso8601
         loadAllSessions()
+        recoverInterruptedSessions()
     }
 
     func startSession() -> Session {
-        var session = Session()
+        let session = Session()
         let sessionDir = sessionsDirectory.appendingPathComponent(session.directoryName)
         try? fileManager.createDirectory(at: sessionDir, withIntermediateDirectories: true)
         activeSession = session
@@ -33,9 +31,9 @@ final class SessionManager {
         return session
     }
 
-    func addChunk(url: URL, duration: TimeInterval, index: Int) {
+    func addChunk(url: URL, duration: TimeInterval, index: Int, startDate: Date) {
         guard var session = activeSession else { return }
-        var chunk = Chunk(sessionId: session.id, chunkIndex: index, startDate: Date())
+        var chunk = Chunk(sessionId: session.id, chunkIndex: index, startDate: startDate)
         chunk.duration = duration
         session.chunks.append(chunk)
         activeSession = session
@@ -73,11 +71,17 @@ final class SessionManager {
             .appendingPathComponent(String(format: "chunk-%03d.m4a", index))
     }
 
+    // 앱 백그라운드 진입 시 즉시 저장 (#9)
+    func saveCurrentState() {
+        guard let session = activeSession else { return }
+        saveSessionMetadata(session)
+    }
+
     func estimatedRemainingHours() -> Double {
         let homeURL = URL(fileURLWithPath: NSHomeDirectory())
         let values = try? homeURL.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
         let freeBytes = values?.volumeAvailableCapacityForImportantUsage ?? 0
-        let bytesPerHour: Double = 14_400_000 // ~14.4MB/hr at 32kbps
+        let bytesPerHour: Double = 14_400_000
         return Double(freeBytes) / bytesPerHour
     }
 
@@ -108,6 +112,17 @@ final class SessionManager {
                 return try? decoder.decode(Session.self, from: data)
             }
             .sorted { $0.startDate > $1.startDate }
+    }
+
+    // 앱 재시작 시 미완료 세션 복구 (#9)
+    private func recoverInterruptedSessions() {
+        for i in sessions.indices {
+            if sessions[i].status == .recording || sessions[i].status == .paused {
+                sessions[i].status = .completed
+                sessions[i].endDate = sessions[i].chunks.last?.startDate ?? sessions[i].startDate
+                saveSessionMetadata(sessions[i])
+            }
+        }
     }
 
     private func cleanupSilenceChunks(_ session: Session) {

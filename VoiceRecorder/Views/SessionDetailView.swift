@@ -69,13 +69,16 @@ struct SessionDetailView: View {
             playingChunkIndex = chunk.chunkIndex
             isPlaying = true
 
-            timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
-                guard let player else { return }
+            timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [self] t in
+                guard let player else {
+                    t.invalidate()
+                    return
+                }
                 playbackTime = player.currentTime
                 if !player.isPlaying {
                     isPlaying = false
                     playingChunkIndex = nil
-                    self.timer?.invalidate()
+                    t.invalidate()
                 }
             }
         } catch {
