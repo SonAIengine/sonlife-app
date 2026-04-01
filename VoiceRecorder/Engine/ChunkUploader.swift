@@ -113,6 +113,76 @@ final class ChunkUploader {
         task.resume()
     }
 
+    // MARK: - Session Complete (Obsidian vault에 마크다운 생성)
+
+    func notifySessionComplete(session: Session, completion: @escaping (Bool) -> Void) {
+        let endpoint = serverURL.appendingPathComponent("api/session/complete")
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let sessionDate = dateFormatter.string(from: session.startDate)
+
+        let timeFormatter = DateFormatter()
+        timeFormatter.dateFormat = "HH:mm"
+
+        var chunksPayload: [[String: Any]] = []
+        for chunk in session.chunks {
+            let startTime = timeFormatter.string(from: chunk.startDate)
+            let endTime = timeFormatter.string(from: chunk.startDate.addingTimeInterval(chunk.duration))
+
+            var segmentsPayload: [[String: Any]] = []
+            if let segments = chunk.segments {
+                for seg in segments {
+                    var segDict: [String: Any] = [
+                        "start": seg.start,
+                        "end": seg.end,
+                        "text": seg.text,
+                    ]
+                    if let speaker = seg.speaker {
+                        segDict["speaker"] = speaker
+                    }
+                    segmentsPayload.append(segDict)
+                }
+            }
+
+            chunksPayload.append([
+                "start_time": startTime,
+                "end_time": endTime,
+                "duration": chunk.duration,
+                "text": chunk.transcript ?? "",
+                "segments": segmentsPayload,
+            ])
+        }
+
+        let body: [String: Any] = [
+            "session_date": sessionDate,
+            "chunks": chunksPayload,
+        ]
+
+        var request = URLRequest(url: endpoint)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: body) else {
+            completion(false)
+            return
+        }
+        request.httpBody = jsonData
+
+        let task = session_http.dataTask(with: request) { data, response, error in
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
+                completion(true)
+            } else {
+                print("[ChunkUploader] Session complete failed: \(error?.localizedDescription ?? "unknown")")
+                completion(false)
+            }
+        }
+        task.resume()
+    }
+
+    // session 프로퍼티 이름 충돌 방지
+    private var session_http: URLSession { session }
+
     // MARK: - Retry Queue
 
     private func addToPending(fileURL: URL, sessionId: String, chunkIndex: Int) {

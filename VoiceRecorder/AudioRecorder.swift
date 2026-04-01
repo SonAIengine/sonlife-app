@@ -104,11 +104,26 @@ final class AudioRecorder: RecordingEngineDelegate, VADMonitorDelegate, AudioSes
         engine.stop()
         timer?.invalidate()
         timer = nil
+
+        // 세션 완료 전에 데이터 캡처 (finalize가 activeSession을 nil로 만들기 전)
+        let completedSession = sessionManager.activeSession
+
         sessionManager.finalizeSession()
         isLifeLogActive = false
         lifeLogSessionTime = 0
         currentPowerLevel = -160.0
         vadState = .active
+
+        // Obsidian vault에 마크다운 생성 요청
+        if let session = completedSession, !session.chunks.isEmpty {
+            ChunkUploader.shared.notifySessionComplete(session: session) { success in
+                if success {
+                    print("[LifeLog] Obsidian vault 업데이트 완료")
+                } else {
+                    print("[LifeLog] Obsidian vault 업데이트 실패")
+                }
+            }
+        }
     }
 
     private func startLifeLogTimer() {
