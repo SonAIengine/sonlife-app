@@ -7,6 +7,15 @@ struct Chunk: Identifiable, Codable {
     let startDate: Date
     var duration: TimeInterval
     var isSilence: Bool
+    var transcript: String?
+    var segments: [TranscriptSegment]?
+
+    struct TranscriptSegment: Codable {
+        let start: Double
+        let end: Double
+        let text: String
+        let speaker: String?
+    }
 
     var filename: String {
         String(format: "chunk-%03d.m4a", chunkIndex)
@@ -25,5 +34,7 @@ struct Chunk: Identifiable, Codable {
         self.startDate = startDate
         self.duration = 0
         self.isSilence = false
+        self.transcript = nil
+        self.segments = nil
     }
 }

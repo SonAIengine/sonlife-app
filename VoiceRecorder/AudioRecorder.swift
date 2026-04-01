@@ -125,7 +125,26 @@ final class AudioRecorder: RecordingEngineDelegate, VADMonitorDelegate, AudioSes
 
     func engineDidFinishChunk(url: URL, duration: TimeInterval, index: Int, startDate: Date) {
         DispatchQueue.main.async { [weak self] in
-            self?.sessionManager.addChunk(url: url, duration: duration, index: index, startDate: startDate)
+            guard let self else { return }
+            self.sessionManager.addChunk(url: url, duration: duration, index: index, startDate: startDate)
+
+            // 자동 STT 업로드
+            guard let session = self.sessionManager.activeSession else { return }
+            let sessionId = session.id.uuidString
+            ChunkUploader.shared.upload(fileURL: url, sessionId: sessionId, chunkIndex: index) { [weak self] result in
+                guard let self, let result else { return }
+                let segments = result.segments.map {
+                    Chunk.TranscriptSegment(start: $0.start, end: $0.end, text: $0.text, speaker: $0.speaker)
+                }
+                DispatchQueue.main.async {
+                    self.sessionManager.updateChunkTranscript(
+                        sessionId: session.id,
+                        chunkIndex: index,
+                        transcript: result.text,
+                        segments: segments
+                    )
+                }
+            }
         }
     }
 

@@ -11,6 +11,13 @@ struct SessionDetailView: View {
     @State private var duration: TimeInterval = 0
     @State private var timer: Timer?
 
+    private var fullTranscript: String {
+        session.chunks
+            .compactMap(\.transcript)
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+    }
+
     var body: some View {
         List {
             Section("세션 정보") {
@@ -22,6 +29,15 @@ struct SessionDetailView: View {
                 LabeledContent("청크 수", value: "\(session.chunkCount)개")
                 LabeledContent("상태") {
                     StatusBadge(status: session.status)
+                }
+            }
+
+            // 전체 텍스트
+            if !fullTranscript.isEmpty {
+                Section("텍스트") {
+                    Text(fullTranscript)
+                        .font(.body)
+                        .textSelection(.enabled)
                 }
             }
 
@@ -137,6 +153,12 @@ struct ChunkRow: View {
                     Text(chunk.startDate.formatted(date: .omitted, time: .shortened))
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                    if let transcript = chunk.transcript, !transcript.isEmpty {
+                        Text(transcript)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                    }
                 }
 
                 Spacer()

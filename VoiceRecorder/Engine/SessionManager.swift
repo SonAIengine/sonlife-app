@@ -49,6 +49,27 @@ final class SessionManager {
         }
     }
 
+    func updateChunkTranscript(sessionId: UUID, chunkIndex: Int, transcript: String, segments: [Chunk.TranscriptSegment]) {
+        // 활성 세션에서 찾기
+        if var session = activeSession, session.id == sessionId {
+            if let idx = session.chunks.firstIndex(where: { $0.chunkIndex == chunkIndex }) {
+                session.chunks[idx].transcript = transcript
+                session.chunks[idx].segments = segments
+                activeSession = session
+                saveSessionMetadata(session)
+            }
+            return
+        }
+        // 완료된 세션에서 찾기
+        if let sessionIdx = sessions.firstIndex(where: { $0.id == sessionId }) {
+            if let chunkIdx = sessions[sessionIdx].chunks.firstIndex(where: { $0.chunkIndex == chunkIndex }) {
+                sessions[sessionIdx].chunks[chunkIdx].transcript = transcript
+                sessions[sessionIdx].chunks[chunkIdx].segments = segments
+                saveSessionMetadata(sessions[sessionIdx])
+            }
+        }
+    }
+
     func finalizeSession() {
         guard var session = activeSession else { return }
         session.status = .completed
