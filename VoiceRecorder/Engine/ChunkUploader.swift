@@ -188,12 +188,16 @@ final class ChunkUploader {
         }
 
         let llmProvider = UserDefaults.standard.string(forKey: "llm_provider") ?? "off"
+        let ollamaModel = UserDefaults.standard.string(forKey: "ollama_model") ?? ""
         var body: [String: Any] = [
             "session_date": sessionDate,
             "chunks": chunksPayload,
         ]
         if llmProvider != "off" {
             body["llm_provider"] = llmProvider
+        }
+        if llmProvider == "ollama" && !ollamaModel.isEmpty {
+            body["ollama_model"] = ollamaModel
         }
 
         var request = URLRequest(url: endpoint)

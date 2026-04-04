@@ -20,6 +20,9 @@ struct SettingsView: View {
     @AppStorage("appTheme") private var selectedTheme: String = AppTheme.system.rawValue
     @AppStorage("stt_vocabulary") private var vocabulary: String = ""
     @AppStorage("llm_provider") private var llmProvider: String = "off"
+    @AppStorage("ollama_model") private var ollamaModel: String = ""
+    @State private var availableModels: [OllamaModel] = []
+    @State private var isLoadingModels = false
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -48,12 +51,37 @@ struct SettingsView: View {
                     Text("Claude (Haiku)").tag("claude")
                     Text("Ollama (로컬)").tag("ollama")
                 }
+                .onChange(of: llmProvider) { _, newValue in
+                    if newValue == "ollama" {
+                        loadOllamaModels()
+                    }
+                }
+
+                if llmProvider == "ollama" {
+                    if isLoadingModels {
+                        HStack {
+                            Text("모델 로딩 중...")
+                            Spacer()
+                            ProgressView()
+                        }
+                    } else if !availableModels.isEmpty {
+                        Picker("Ollama 모델", selection: $ollamaModel) {
+                            ForEach(availableModels, id: \.name) { model in
+                                Text("\(model.name) (\(model.sizeText))").tag(model.name)
+                            }
+                        }
+                    } else {
+                        Button("모델 목록 새로고침") {
+                            loadOllamaModels()
+                        }
+                    }
+                }
             } header: {
                 Text("AI 요약")
             } footer: {
                 switch llmProvider {
                 case "claude": Text("Anthropic API 키 필요 (서버 .env에 설정)")
-                case "ollama": Text("Home 서버에서 Ollama 실행 필요")
+                case "ollama": Text("Home 서버의 Ollama 모델로 요약")
                 default: Text("세션 종료 시 Obsidian에 AI 요약이 추가됩니다")
                 }
             }
@@ -133,10 +161,50 @@ struct SettingsView: View {
         }.resume()
     }
 
+    private func loadOllamaModels() {
+        isLoadingModels = true
+        guard let url = URL(string: serverURL)?.appendingPathComponent("api/llm/models") else {
+            isLoadingModels = false
+            return
+        }
+
+        URLSession.shared.dataTask(with: url) { data, _, _ in
+            DispatchQueue.main.async {
+                isLoadingModels = false
+                guard let data,
+                      let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                      let models = json["models"] as? [[String: Any]] else {
+                    return
+                }
+                availableModels = models.compactMap { dict in
+                    guard let name = dict["name"] as? String else { return nil }
+                    let size = dict["size"] as? Int64 ?? 0
+                    return OllamaModel(name: name, size: size)
+                }
+                if ollamaModel.isEmpty, let first = availableModels.first {
+                    ollamaModel = first.name
+                }
+            }
+        }.resume()
+    }
+
     private enum TestStatus: Equatable {
         case idle
         case testing
         case success(String)
         case failure(String)
+    }
+}
+
+struct OllamaModel {
+    let name: String
+    let size: Int64
+
+    var sizeText: String {
+        let gb = Double(size) / 1_073_741_824
+        if gb >= 1 {
+            return String(format: "%.1fGB", gb)
+        }
+        return String(format: "%.0fMB", Double(size) / 1_048_576)
     }
 }
