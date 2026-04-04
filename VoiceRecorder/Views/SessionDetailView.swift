@@ -22,6 +22,7 @@ struct SessionDetailView: View {
     @State private var expandedChunkIndex: Int?
     @State private var renamingSpeaker: String?
     @State private var speakerNewName: String = ""
+    @State private var uploadingChunkIndices: Set<Int> = []
 
     var body: some View {
         ScrollViewReader { listProxy in
@@ -47,6 +48,7 @@ struct SessionDetailView: View {
                             isExpanded: expandedChunkIndex == chunk.chunkIndex,
                             playbackTime: isChunkPlaying ? playbackTime : nil,
                             speakerNames: session.speakerNames,
+                            isUploading: uploadingChunkIndices.contains(chunk.chunkIndex),
                             onPlayTap: { toggleChunkPlayback(chunk) },
                             onSpeakerTap: { speakerId in
                                 speakerNewName = session.speakerNames[speakerId] ?? ""
@@ -236,8 +238,12 @@ struct SessionDetailView: View {
             let fileURL = chunk.url(in: sessionDir)
             guard FileManager.default.fileExists(atPath: fileURL.path) else { continue }
 
+            uploadingChunkIndices.insert(chunk.chunkIndex)
             group.enter()
             ChunkUploader.shared.upload(fileURL: fileURL, sessionId: session.id.uuidString, chunkIndex: chunk.chunkIndex) { result in
+                DispatchQueue.main.async {
+                    self.uploadingChunkIndices.remove(chunk.chunkIndex)
+                }
                 if let result {
                     let segments = result.segments.map {
                         Chunk.TranscriptSegment(start: $0.start, end: $0.end, text: $0.text, speaker: $0.speaker)
@@ -346,6 +352,7 @@ struct ChunkRow: View {
     let isExpanded: Bool
     var playbackTime: TimeInterval?
     var speakerNames: [String: String] = [:]
+    var isUploading: Bool = false
     let onPlayTap: () -> Void
     var onSpeakerTap: ((String) -> Void)?
     let onExpandTap: () -> Void
@@ -397,11 +404,21 @@ struct ChunkRow: View {
                         }
                     }
 
-                    if !isExpanded, let transcript = chunk.transcript, !transcript.isEmpty {
-                        Text(transcript)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(2)
+                    if !isExpanded {
+                        if let transcript = chunk.transcript, !transcript.isEmpty {
+                            Text(transcript)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(2)
+                        } else if isUploading {
+                            HStack(spacing: 4) {
+                                ProgressView()
+                                    .controlSize(.mini)
+                                Text("STT 변환 중...")
+                                    .font(.caption)
+                                    .foregroundStyle(.orange)
+                            }
+                        }
                     }
                 }
 
@@ -467,9 +484,18 @@ struct ChunkRow: View {
                         .font(.callout)
                         .foregroundStyle(.secondary)
                 } else {
-                    Text("STT 미완료")
-                        .font(.callout)
-                        .foregroundStyle(.orange)
+                    if isUploading {
+                        HStack {
+                            ProgressView()
+                            Text("STT 변환 중...")
+                                .font(.callout)
+                                .foregroundStyle(.orange)
+                        }
+                    } else {
+                        Text("STT 미완료")
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                    }
                 }
             }
         }
