@@ -72,8 +72,8 @@ final class RecordingEngine {
     }
 
     func currentAveragePower() -> Float {
-        currentRecorder?.updateMeters()
-        return currentRecorder?.averagePower(forChannel: 0) ?? -160.0
+        // updateMeters()는 meteringTimer에서 0.1초마다 호출하므로 여기서는 중복 호출하지 않음
+        currentRecorder?.averagePower(forChannel: 0) ?? -160.0
     }
 
     var currentTime: TimeInterval {

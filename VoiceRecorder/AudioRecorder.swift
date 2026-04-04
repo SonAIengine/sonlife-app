@@ -18,6 +18,7 @@ final class AudioRecorder: RecordingEngineDelegate, VADMonitorDelegate, AudioSes
     var currentPowerLevel: Float = -160.0
     var vadState: VADState = .active
     var vadSilenceDuration: TimeInterval = 0
+    var vadSilenceTimeout: TimeInterval { vad.silenceTimeoutSeconds }
 
     // Components
     private let engine = RecordingEngine()
@@ -47,6 +48,7 @@ final class AudioRecorder: RecordingEngineDelegate, VADMonitorDelegate, AudioSes
         observeAppLifecycle()
         startNetworkMonitor()
         retryPendingUploads()
+        ChunkUploader.shared.retryPendingSyncs()
     }
 
     // MARK: - App Lifecycle (#9)
@@ -327,7 +329,9 @@ final class AudioRecorder: RecordingEngineDelegate, VADMonitorDelegate, AudioSes
                 let txtURL = url.deletingPathExtension().appendingPathExtension("txt")
                 let hasTranscript = fileManager.fileExists(atPath: txtURL.path)
                 let transcript = hasTranscript ? (try? String(contentsOf: txtURL, encoding: .utf8)) : nil
-                return Recording(url: url, date: date, transcript: transcript)
+                let asset = AVURLAsset(url: url)
+                let duration = CMTimeGetSeconds(asset.duration)
+                return Recording(url: url, date: date, duration: duration.isFinite ? duration : 0, transcript: transcript)
             }
             .sorted { $0.date > $1.date }
     }

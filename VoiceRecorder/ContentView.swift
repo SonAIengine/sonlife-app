@@ -125,21 +125,13 @@ struct ManualRecordingView: View {
 struct RecordingRow: View {
     let recording: Recording
 
-    private var recordingDuration: String {
-        guard let player = try? AVAudioPlayer(contentsOf: recording.url) else { return "" }
-        let d = player.duration
-        let m = Int(d) / 60
-        let s = Int(d) % 60
-        return String(format: "%d:%02d", m, s)
-    }
-
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Text(recording.date.formatted(date: .abbreviated, time: .shortened))
                     .font(.subheadline)
                 Spacer()
-                Text(recordingDuration)
+                Text(formatDuration(recording.duration))
                     .font(.caption.monospaced())
                     .foregroundStyle(.secondary)
             }
@@ -156,6 +148,12 @@ struct RecordingRow: View {
             }
         }
         .padding(.vertical, 4)
+    }
+
+    private func formatDuration(_ seconds: TimeInterval) -> String {
+        let m = Int(seconds) / 60
+        let s = Int(seconds) % 60
+        return String(format: "%d:%02d", m, s)
     }
 }
 

@@ -98,7 +98,7 @@ struct LifeLogControlView: View {
         switch recorder.vadState {
         case .active: return "녹음 중"
         case .silenceDetected:
-            let remaining = max(0, 30 - Int(recorder.vadSilenceDuration))
+            let remaining = max(0, Int(recorder.vadSilenceTimeout) - Int(recorder.vadSilenceDuration))
             return "무음 감지 (\(remaining)초)"
         case .silencePaused:
             return "무음 일시정지"
