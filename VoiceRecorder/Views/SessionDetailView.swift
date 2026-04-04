@@ -233,38 +233,15 @@ struct SessionDetailView: View {
             return
         }
 
-        let group = DispatchGroup()
-        for chunk in untranscribedChunks {
-            let fileURL = chunk.url(in: sessionDir)
-            guard FileManager.default.fileExists(atPath: fileURL.path) else { continue }
+        // 순차 처리 (GPU OOM 방지)
+        uploadChunksSequentially(chunks: untranscribedChunks, sessionDir: sessionDir, index: 0)
+    }
 
-            uploadingChunkIndices.insert(chunk.chunkIndex)
-            group.enter()
-            ChunkUploader.shared.upload(fileURL: fileURL, sessionId: session.id.uuidString, chunkIndex: chunk.chunkIndex) { result in
-                DispatchQueue.main.async {
-                    self.uploadingChunkIndices.remove(chunk.chunkIndex)
-                }
-                if let result {
-                    let segments = result.segments.map {
-                        Chunk.TranscriptSegment(start: $0.start, end: $0.end, text: $0.text, speaker: $0.speaker)
-                    }
-                    DispatchQueue.main.async {
-                        self.sessionManager.updateChunkTranscript(
-                            sessionId: session.id,
-                            chunkIndex: chunk.chunkIndex,
-                            transcript: result.text,
-                            segments: segments
-                        )
-                    }
-                }
-                group.leave()
-            }
-        }
-
-        group.notify(queue: .main) {
-            // 세션 데이터 새로고침 후 Obsidian 동기화
-            self.sessionManager.loadAllSessions()
-            if let updated = self.sessionManager.sessions.first(where: { $0.id == session.id }) {
+    private func uploadChunksSequentially(chunks: [Chunk], sessionDir: URL, index: Int) {
+        guard index < chunks.count else {
+            // 모든 청크 업로드 완료 → Obsidian 동기화
+            sessionManager.loadAllSessions()
+            if let updated = sessionManager.sessions.first(where: { $0.id == sessionId }) {
                 ChunkUploader.shared.notifySessionComplete(session: updated) { success in
                     DispatchQueue.main.async {
                         self.syncStatus = success ? .success : .failure
@@ -274,7 +251,35 @@ struct SessionDetailView: View {
                     }
                 }
             } else {
-                self.sendSessionComplete()
+                sendSessionComplete()
+            }
+            return
+        }
+
+        let chunk = chunks[index]
+        let fileURL = chunk.url(in: sessionDir)
+        guard FileManager.default.fileExists(atPath: fileURL.path) else {
+            uploadChunksSequentially(chunks: chunks, sessionDir: sessionDir, index: index + 1)
+            return
+        }
+
+        uploadingChunkIndices.insert(chunk.chunkIndex)
+        ChunkUploader.shared.upload(fileURL: fileURL, sessionId: sessionId.uuidString, chunkIndex: chunk.chunkIndex) { result in
+            DispatchQueue.main.async {
+                self.uploadingChunkIndices.remove(chunk.chunkIndex)
+                if let result {
+                    let segments = result.segments.map {
+                        Chunk.TranscriptSegment(start: $0.start, end: $0.end, text: $0.text, speaker: $0.speaker)
+                    }
+                    self.sessionManager.updateChunkTranscript(
+                        sessionId: self.sessionId,
+                        chunkIndex: chunk.chunkIndex,
+                        transcript: result.text,
+                        segments: segments
+                    )
+                }
+                // 다음 청크 처리
+                self.uploadChunksSequentially(chunks: chunks, sessionDir: sessionDir, index: index + 1)
             }
         }
     }
