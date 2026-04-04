@@ -187,10 +187,14 @@ final class ChunkUploader {
             ])
         }
 
-        let body: [String: Any] = [
+        let llmProvider = UserDefaults.standard.string(forKey: "llm_provider") ?? "off"
+        var body: [String: Any] = [
             "session_date": sessionDate,
             "chunks": chunksPayload,
         ]
+        if llmProvider != "off" {
+            body["llm_provider"] = llmProvider
+        }
 
         var request = URLRequest(url: endpoint)
         request.httpMethod = "POST"

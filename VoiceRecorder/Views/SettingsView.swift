@@ -19,6 +19,7 @@ struct SettingsView: View {
     @State private var testStatus: TestStatus = .idle
     @AppStorage("appTheme") private var selectedTheme: String = AppTheme.system.rawValue
     @AppStorage("stt_vocabulary") private var vocabulary: String = ""
+    @AppStorage("llm_provider") private var llmProvider: String = "off"
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -39,6 +40,22 @@ struct SettingsView: View {
                 Text("커스텀 용어")
             } footer: {
                 Text("STT 인식률을 높이기 위한 힌트 (예: 데이터 마이닝, 레벤슈타인, RNN)")
+            }
+
+            Section {
+                Picker("AI 요약", selection: $llmProvider) {
+                    Text("사용 안 함").tag("off")
+                    Text("Claude (Haiku)").tag("claude")
+                    Text("Ollama (로컬)").tag("ollama")
+                }
+            } header: {
+                Text("AI 요약")
+            } footer: {
+                switch llmProvider {
+                case "claude": Text("Anthropic API 키 필요 (서버 .env에 설정)")
+                case "ollama": Text("Home 서버에서 Ollama 실행 필요")
+                default: Text("세션 종료 시 Obsidian에 AI 요약이 추가됩니다")
+                }
             }
 
             Section("STT 서버") {
