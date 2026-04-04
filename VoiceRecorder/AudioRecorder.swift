@@ -352,9 +352,23 @@ final class AudioRecorder: RecordingEngineDelegate, VADMonitorDelegate, AudioSes
     // MARK: - Retry Queue
 
     private func retryPendingUploads() {
-        ChunkUploader.shared.retryPendingUploads { count in
-            if count > 0 {
-                print("[LifeLog] \(count)개 pending 청크 업로드 성공")
+        ChunkUploader.shared.retryPendingUploads { [weak self] count in
+            guard let self, count > 0 else { return }
+            print("[LifeLog] \(count)개 pending 청크 업로드 성공")
+            // 완료된 세션 중 transcript가 있는 세션을 Obsidian에 재동기화
+            self.syncCompletedSessionsToObsidian()
+        }
+    }
+
+    private func syncCompletedSessionsToObsidian() {
+        let completedSessions = sessionManager.sessions.filter { session in
+            session.status == .completed && session.chunks.contains { $0.transcript != nil }
+        }
+        for session in completedSessions {
+            ChunkUploader.shared.notifySessionComplete(session: session) { success in
+                if success {
+                    print("[LifeLog] 세션 \(session.id.uuidString.prefix(8)) Obsidian 동기화 완료")
+                }
             }
         }
     }
