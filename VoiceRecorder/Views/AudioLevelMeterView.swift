@@ -16,14 +16,14 @@ struct AudioLevelMeterView: View {
     var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .leading) {
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(Color.gray.opacity(0.2))
-                RoundedRectangle(cornerRadius: 4)
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(Color(.systemFill))
+                RoundedRectangle(cornerRadius: 6)
                     .fill(barColor)
                     .frame(width: geo.size.width * normalizedLevel)
                     .animation(.linear(duration: 0.1), value: normalizedLevel)
             }
         }
-        .frame(height: 8)
+        .frame(height: 14)
     }
 }

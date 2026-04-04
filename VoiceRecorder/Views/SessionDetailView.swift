@@ -11,48 +11,52 @@ struct SessionDetailView: View {
     @State private var duration: TimeInterval = 0
     @State private var timer: Timer?
     @State private var syncStatus: SyncStatus = .idle
-
-    private var fullTranscript: String {
-        session.chunks
-            .compactMap(\.transcript)
-            .filter { !$0.isEmpty }
-            .joined(separator: " ")
-    }
+    @State private var expandedChunkIndex: Int?
 
     var body: some View {
-        List {
-            Section("세션 정보") {
-                LabeledContent("시작", value: session.startDate.formatted(date: .abbreviated, time: .shortened))
-                if let end = session.endDate {
-                    LabeledContent("종료", value: end.formatted(date: .abbreviated, time: .shortened))
+        ScrollViewReader { listProxy in
+            List {
+                Section("세션 정보") {
+                    LabeledContent("시작", value: session.startDate.formatted(date: .abbreviated, time: .shortened))
+                    if let end = session.endDate {
+                        LabeledContent("종료", value: end.formatted(date: .abbreviated, time: .shortened))
+                    }
+                    LabeledContent("총 시간", value: formatDuration(session.totalDuration))
+                    LabeledContent("청크 수", value: "\(session.chunkCount)개")
+                    LabeledContent("상태") {
+                        StatusBadge(status: session.status)
+                    }
                 }
-                LabeledContent("총 시간", value: formatDuration(session.totalDuration))
-                LabeledContent("청크 수", value: "\(session.chunkCount)개")
-                LabeledContent("상태") {
-                    StatusBadge(status: session.status)
-                }
-            }
 
-            // 전체 텍스트
-            if !fullTranscript.isEmpty {
-                Section("텍스트") {
-                    Text(fullTranscript)
-                        .font(.body)
-                        .textSelection(.enabled)
-                }
-            }
-
-            Section("청크 목록") {
-                ForEach(session.chunks) { chunk in
-                    ChunkRow(
-                        chunk: chunk,
-                        isPlaying: playingChunkIndex == chunk.chunkIndex && isPlaying,
-                        onTap: { toggleChunkPlayback(chunk) }
-                    )
+                Section("타임라인") {
+                    ForEach(session.chunks) { chunk in
+                        let isChunkPlaying = playingChunkIndex == chunk.chunkIndex && isPlaying
+                        ChunkRow(
+                            chunk: chunk,
+                            isPlaying: isChunkPlaying,
+                            isExpanded: expandedChunkIndex == chunk.chunkIndex,
+                            playbackTime: isChunkPlaying ? playbackTime : nil,
+                            onPlayTap: { toggleChunkPlayback(chunk) },
+                            onExpandTap: {
+                                let newIndex = expandedChunkIndex == chunk.chunkIndex ? nil : chunk.chunkIndex
+                                withAnimation {
+                                    expandedChunkIndex = newIndex
+                                }
+                                if newIndex != nil {
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                        withAnimation {
+                                            listProxy.scrollTo(chunk.id, anchor: .top)
+                                        }
+                                    }
+                                }
+                            }
+                        )
+                        .id(chunk.id)
+                    }
                 }
             }
         }
-        .navigationTitle("세션 상세")
+        .navigationTitle(session.startDate.formatted(date: .abbreviated, time: .shortened))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -95,6 +99,10 @@ struct SessionDetailView: View {
         }
 
         stopPlayback()
+        // 재생 시 자동 펼침
+        withAnimation {
+            expandedChunkIndex = chunk.chunkIndex
+        }
         let url = chunk.url(in: sessionManager.sessionsDirectory.appendingPathComponent(session.id.uuidString))
 
         do {
@@ -228,24 +236,49 @@ struct SessionDetailView: View {
 struct ChunkRow: View {
     let chunk: Chunk
     let isPlaying: Bool
-    let onTap: () -> Void
+    let isExpanded: Bool
+    var playbackTime: TimeInterval?
+    let onPlayTap: () -> Void
+    let onExpandTap: () -> Void
+
+    private func isSegmentActive(_ seg: Chunk.TranscriptSegment) -> Bool {
+        guard let time = playbackTime else { return false }
+        return time >= seg.start && time < seg.end
+    }
+
+    private func isSegmentPast(_ seg: Chunk.TranscriptSegment) -> Bool {
+        guard let time = playbackTime else { return false }
+        return time >= seg.end
+    }
 
     var body: some View {
-        Button(action: onTap) {
+        VStack(alignment: .leading, spacing: 0) {
+            // 헤더
             HStack {
-                Image(systemName: isPlaying ? "stop.circle.fill" : "play.circle.fill")
-                    .font(.title3)
-                    .foregroundStyle(isPlaying ? .red : .blue)
+                Button(action: onPlayTap) {
+                    Image(systemName: isPlaying ? "stop.circle.fill" : "play.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(isPlaying ? .red : .blue)
+                }
+                .buttonStyle(.plain)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("청크 \(chunk.chunkIndex + 1)")
-                        .font(.subheadline.bold())
-                    Text(chunk.startDate.formatted(date: .omitted, time: .shortened))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    if let transcript = chunk.transcript, !transcript.isEmpty {
+                    HStack {
+                        Text(chunk.startDate.formatted(date: .omitted, time: .shortened))
+                            .font(.subheadline.bold())
+                        Text(formatChunkDuration(chunk.duration))
+                            .font(.caption.monospaced())
+                            .foregroundStyle(.secondary)
+                        if chunk.isSilence {
+                            Image(systemName: "speaker.slash")
+                                .font(.caption)
+                                .foregroundStyle(.orange)
+                        }
+                    }
+
+                    if !isExpanded, let transcript = chunk.transcript, !transcript.isEmpty {
                         Text(transcript)
-                            .font(.caption2)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                             .lineLimit(2)
                     }
@@ -253,18 +286,71 @@ struct ChunkRow: View {
 
                 Spacer()
 
-                Text(formatChunkDuration(chunk.duration))
-                    .font(.caption.monospaced())
-                    .foregroundStyle(.secondary)
+                Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            }
+            .contentShape(Rectangle())
+            .onTapGesture(perform: onExpandTap)
 
-                if chunk.isSilence {
-                    Image(systemName: "speaker.slash")
-                        .font(.caption)
+            // 펼침 영역 — 재생 위치 하이라이트
+            if isExpanded {
+                Divider()
+                    .padding(.vertical, 8)
+
+                if let segments = chunk.segments, !segments.isEmpty {
+                    ScrollViewReader { proxy in
+                        VStack(alignment: .leading, spacing: 4) {
+                            ForEach(Array(segments.enumerated()), id: \.offset) { idx, seg in
+                                HStack(alignment: .top, spacing: 8) {
+                                    if let speaker = seg.speaker {
+                                        Text(speaker)
+                                            .font(.caption2.bold())
+                                            .foregroundStyle(isSegmentActive(seg) ? .white : .blue)
+                                            .frame(width: 80, alignment: .leading)
+                                    }
+                                    Text(seg.text)
+                                        .font(.callout)
+                                        .foregroundStyle(
+                                            isSegmentActive(seg) ? .white :
+                                            playbackTime != nil && !isSegmentPast(seg) ? .secondary :
+                                            .primary
+                                        )
+                                }
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .fill(isSegmentActive(seg) ? Color.blue : Color.clear)
+                                )
+                                .id(idx)
+                            }
+                        }
+                        .onChange(of: playbackTime) { _, _ in
+                            if let segments = chunk.segments,
+                               let activeIdx = segments.firstIndex(where: { isSegmentActive($0) }) {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    proxy.scrollTo(activeIdx, anchor: .center)
+                                }
+                            }
+                        }
+                    }
+                } else if let transcript = chunk.transcript, !transcript.isEmpty {
+                    Text(transcript)
+                        .font(.callout)
+                } else if chunk.isSilence {
+                    Text("무음 구간")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text("STT 미완료")
+                        .font(.callout)
                         .foregroundStyle(.orange)
                 }
             }
         }
-        .buttonStyle(.plain)
+        .padding(.vertical, 4)
+        .animation(.easeInOut(duration: 0.2), value: isExpanded)
     }
 
     private func formatChunkDuration(_ seconds: TimeInterval) -> String {

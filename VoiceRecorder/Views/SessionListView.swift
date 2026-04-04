@@ -35,10 +35,10 @@ struct SessionRow: View {
     let session: Session
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text(session.startDate.formatted(date: .abbreviated, time: .shortened))
-                    .font(.headline)
+                    .font(.subheadline)
                 Spacer()
                 StatusBadge(status: session.status)
             }
@@ -47,6 +47,7 @@ struct SessionRow: View {
                 Label("\(session.chunkCount)개 청크", systemImage: "square.stack.3d.up")
                 Spacer()
                 Text(formatDuration(session.totalDuration))
+                    .font(.subheadline.monospaced().bold())
             }
             .font(.caption)
             .foregroundStyle(.secondary)
@@ -57,10 +58,14 @@ struct SessionRow: View {
     private func formatDuration(_ seconds: TimeInterval) -> String {
         let h = Int(seconds) / 3600
         let m = (Int(seconds) % 3600) / 60
+        let s = Int(seconds) % 60
         if h > 0 {
-            return "\(h)시간 \(m)분"
+            return String(format: "%d:%02d:%02d", h, m, s)
         }
-        return "\(m)분"
+        if m > 0 {
+            return String(format: "%d분 %d초", m, s)
+        }
+        return "\(s)초"
     }
 }
 

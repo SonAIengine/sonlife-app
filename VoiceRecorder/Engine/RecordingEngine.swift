@@ -26,7 +26,7 @@ final class RecordingEngine {
         AVSampleRateKey: 16000,
         AVNumberOfChannelsKey: 1,
         AVEncoderAudioQualityKey: AVAudioQuality.medium.rawValue,
-        AVEncoderBitRateKey: 32000
+        AVEncoderBitRateKey: 16000
     ]
 
     static let manualSettings: [String: Any] = [

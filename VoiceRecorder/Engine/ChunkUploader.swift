@@ -82,6 +82,13 @@ final class ChunkUploader {
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
         body.append("Content-Disposition: form-data; name=\"enable_diarization\"\r\n\r\n".data(using: .utf8)!)
         body.append("true\r\n".data(using: .utf8)!)
+        // initial_prompt (커스텀 용어)
+        let vocabulary = UserDefaults.standard.string(forKey: "stt_vocabulary") ?? ""
+        if !vocabulary.isEmpty {
+            body.append("--\(boundary)\r\n".data(using: .utf8)!)
+            body.append("Content-Disposition: form-data; name=\"initial_prompt\"\r\n\r\n".data(using: .utf8)!)
+            body.append("\(vocabulary)\r\n".data(using: .utf8)!)
+        }
         body.append("--\(boundary)--\r\n".data(using: .utf8)!)
 
         request.httpBody = body

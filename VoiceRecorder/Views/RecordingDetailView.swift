@@ -9,16 +9,25 @@ struct RecordingDetailView: View {
     @State private var playbackTime: TimeInterval = 0
     @State private var duration: TimeInterval = 0
     @State private var timer: Timer?
-    @State private var showShareSheet = false
+    @State private var showDeleteConfirm = false
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 // 재생 컨트롤
                 VStack(spacing: 12) {
-                    // 프로그레스 바
-                    ProgressView(value: duration > 0 ? playbackTime / duration : 0)
-                        .tint(.blue)
+                    // Seek 가능한 Slider
+                    Slider(
+                        value: Binding(
+                            get: { duration > 0 ? playbackTime : 0 },
+                            set: { newValue in
+                                player?.currentTime = newValue
+                                playbackTime = newValue
+                            }
+                        ),
+                        in: 0...max(duration, 0.01)
+                    )
+                    .tint(.blue)
 
                     HStack {
                         Text(formatTime(playbackTime))
@@ -29,7 +38,7 @@ struct RecordingDetailView: View {
                     }
                     .foregroundStyle(.secondary)
 
-                    // 재생/정지 버튼
+                    // 재생 버튼
                     HStack(spacing: 30) {
                         Button {
                             seek(by: -10)
@@ -37,6 +46,7 @@ struct RecordingDetailView: View {
                             Image(systemName: "gobackward.10")
                                 .font(.title2)
                         }
+                        .accessibilityLabel("10초 뒤로")
 
                         Button {
                             togglePlayback()
@@ -44,6 +54,7 @@ struct RecordingDetailView: View {
                             Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
                                 .font(.system(size: 50))
                         }
+                        .accessibilityLabel(isPlaying ? "일시정지" : "재생")
 
                         Button {
                             seek(by: 10)
@@ -51,14 +62,15 @@ struct RecordingDetailView: View {
                             Image(systemName: "goforward.10")
                                 .font(.title2)
                         }
+                        .accessibilityLabel("10초 앞으로")
                     }
                 }
                 .padding()
-                .background(RoundedRectangle(cornerRadius: 12).fill(.gray.opacity(0.1)))
+                .background(RoundedRectangle(cornerRadius: 12).fill(Color(.secondarySystemGroupedBackground)))
 
                 // STT 결과
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("텍스트 변환")
+                    Text("STT 결과")
                         .font(.headline)
 
                     if let transcript = recording.transcript {
@@ -67,7 +79,7 @@ struct RecordingDetailView: View {
                             .textSelection(.enabled)
                             .padding()
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(RoundedRectangle(cornerRadius: 8).fill(.gray.opacity(0.1)))
+                            .background(RoundedRectangle(cornerRadius: 8).fill(Color(.secondarySystemGroupedBackground)))
                     } else {
                         Text("변환 중이거나 변환 결과가 없습니다.")
                             .foregroundStyle(.secondary)
@@ -89,11 +101,19 @@ struct RecordingDetailView: View {
 
             ToolbarItem(placement: .topBarTrailing) {
                 Button(role: .destructive) {
-                    recorder.deleteRecording(recording)
+                    showDeleteConfirm = true
                 } label: {
                     Image(systemName: "trash")
                 }
             }
+        }
+        .alert("녹음 삭제", isPresented: $showDeleteConfirm) {
+            Button("삭제", role: .destructive) {
+                recorder.deleteRecording(recording)
+            }
+            Button("취소", role: .cancel) {}
+        } message: {
+            Text("이 녹음을 삭제하시겠습니까?")
         }
         .onAppear {
             setupPlayer()

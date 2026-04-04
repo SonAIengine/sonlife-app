@@ -1,12 +1,46 @@
 import SwiftUI
 
+enum AppTheme: String, CaseIterable {
+    case system = "시스템"
+    case light = "라이트"
+    case dark = "다크"
+
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .system: return nil
+        case .light: return .light
+        case .dark: return .dark
+        }
+    }
+}
+
 struct SettingsView: View {
     @State private var serverURL: String = ChunkUploader.shared.currentServerURL
     @State private var testStatus: TestStatus = .idle
+    @AppStorage("appTheme") private var selectedTheme: String = AppTheme.system.rawValue
+    @AppStorage("stt_vocabulary") private var vocabulary: String = ""
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         Form {
+            Section("화면 모드") {
+                Picker("테마", selection: $selectedTheme) {
+                    ForEach(AppTheme.allCases, id: \.rawValue) { theme in
+                        Text(theme.rawValue).tag(theme.rawValue)
+                    }
+                }
+                .pickerStyle(.segmented)
+            }
+
+            Section {
+                TextField("자주 사용하는 용어를 입력하세요", text: $vocabulary, axis: .vertical)
+                    .lineLimit(3...6)
+            } header: {
+                Text("커스텀 용어")
+            } footer: {
+                Text("STT 인식률을 높이기 위한 힌트 (예: 데이터 마이닝, 레벤슈타인, RNN)")
+            }
+
             Section("STT 서버") {
                 TextField("서버 URL", text: $serverURL)
                     .keyboardType(.URL)

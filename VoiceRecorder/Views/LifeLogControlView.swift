@@ -2,39 +2,39 @@ import SwiftUI
 
 struct LifeLogControlView: View {
     @Bindable var recorder: AudioRecorder
+    @State private var showStopConfirm = false
 
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 12) {
             // LifeLog 토글
-            VStack(spacing: 8) {
-                Toggle(isOn: Binding(
+            HStack {
+                Image(systemName: recorder.isLifeLogActive ? "waveform.circle.fill" : "waveform.circle")
+                    .font(.title2)
+                    .foregroundStyle(recorder.isLifeLogActive ? .red : .secondary)
+                    .symbolEffect(.pulse, isActive: recorder.isLifeLogActive)
+                Text("LifeLog")
+                    .font(.title2.bold())
+                Spacer()
+                Toggle("", isOn: Binding(
                     get: { recorder.isLifeLogActive },
                     set: { newValue in
                         if newValue {
                             recorder.startLifeLog()
                         } else {
-                            recorder.stopLifeLog()
+                            showStopConfirm = true
                         }
                     }
-                )) {
-                    HStack {
-                        Image(systemName: recorder.isLifeLogActive ? "waveform.circle.fill" : "waveform.circle")
-                            .font(.title2)
-                            .foregroundStyle(recorder.isLifeLogActive ? .red : .secondary)
-                            .symbolEffect(.pulse, isActive: recorder.isLifeLogActive)
-                        Text("LifeLog")
-                            .font(.title2.bold())
-                    }
-                }
+                ))
                 .toggleStyle(.switch)
                 .tint(.red)
+                .labelsHidden()
             }
             .padding()
-            .background(RoundedRectangle(cornerRadius: 16).fill(.gray.opacity(0.1)))
+            .background(RoundedRectangle(cornerRadius: 16).fill(Color(.secondarySystemGroupedBackground)))
 
             if recorder.isLifeLogActive {
-                // 세션 정보
-                VStack(spacing: 12) {
+                // 세션 통계 + 레벨 미터
+                VStack(spacing: 10) {
                     HStack {
                         StatView(
                             title: "녹음 시간",
@@ -55,32 +55,35 @@ struct LifeLogControlView: View {
                         )
                     }
 
-                    // 레벨 미터
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("입력 레벨")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        AudioLevelMeterView(level: recorder.currentPowerLevel)
-                    }
+                    AudioLevelMeterView(level: recorder.currentPowerLevel)
 
                     // VAD 상태
-                    HStack {
+                    HStack(spacing: 6) {
                         Circle()
                             .fill(vadColor)
-                            .frame(width: 10, height: 10)
+                            .frame(width: 8, height: 8)
                         Text(vadStatusText)
                             .font(.caption)
                             .foregroundStyle(.secondary)
+                            .lineLimit(1)
                         Spacer()
                     }
                 }
                 .padding()
-                .background(RoundedRectangle(cornerRadius: 16).fill(.gray.opacity(0.1)))
+                .background(RoundedRectangle(cornerRadius: 16).fill(Color(.secondarySystemGroupedBackground)))
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
         .padding(.horizontal)
         .animation(.easeInOut(duration: 0.3), value: recorder.isLifeLogActive)
+        .alert("LifeLog 종료", isPresented: $showStopConfirm) {
+            Button("종료", role: .destructive) {
+                recorder.stopLifeLog()
+            }
+            Button("취소", role: .cancel) {}
+        } message: {
+            Text("현재 세션을 종료하시겠습니까?")
+        }
     }
 
     private var vadColor: Color {
@@ -96,9 +99,9 @@ struct LifeLogControlView: View {
         case .active: return "녹음 중"
         case .silenceDetected:
             let remaining = max(0, 30 - Int(recorder.vadSilenceDuration))
-            return "무음 감지 (\(remaining)초 후 자동 일시정지)"
+            return "무음 감지 (\(remaining)초)"
         case .silencePaused:
-            return "무음 일시정지 (소리 감지 시 자동 재개)"
+            return "무음 일시정지"
         }
     }
 
