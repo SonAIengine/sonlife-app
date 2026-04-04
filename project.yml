@@ -13,6 +13,7 @@ targets:
       - path: VoiceRecorder
         excludes:
           - Info.plist
+      - path: Shared
     settings:
       base:
         GENERATE_INFOPLIST_FILE: NO
@@ -30,6 +31,31 @@ targets:
         INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
+    entitlements:
+      path: VoiceRecorder/VoiceRecorder.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.sonaiengine.voicerecorder
+    dependencies:
+      - target: SonLifeWidgetExtension
+
+  SonLifeWidgetExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: SonLifeWidget
+      - path: Shared
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.sonaiengine.voicerecorder.widget
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "5.9"
+        DEVELOPMENT_TEAM: XMF443BPZ9
+        INFOPLIST_KEY_CFBundleDisplayName: SonLife
+        INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier: com.apple.widgetkit-extension
+        INFOPLIST_KEY_NSSupportsLiveActivities: YES
     entitlements:
       path: VoiceRecorder/VoiceRecorder.entitlements
       properties:

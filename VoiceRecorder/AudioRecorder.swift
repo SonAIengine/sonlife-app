@@ -1,3 +1,4 @@
+import ActivityKit
 import AVFoundation
 import Network
 import Speech
@@ -34,6 +35,7 @@ final class AudioRecorder: RecordingEngineDelegate, VADMonitorDelegate, AudioSes
     private var markNextChunkAsSilence = false
     private let networkMonitor = NWPathMonitor()
     private var wasDisconnected = false
+    private var liveActivity: Activity<RecordingAttributes>?
 
     let recordingsDirectory: URL
 
@@ -108,6 +110,7 @@ final class AudioRecorder: RecordingEngineDelegate, VADMonitorDelegate, AudioSes
 
         vad.start(engine: engine)
         startLifeLogTimer()
+        startLiveActivity()
     }
 
     func stopLifeLog() {
@@ -126,6 +129,8 @@ final class AudioRecorder: RecordingEngineDelegate, VADMonitorDelegate, AudioSes
         currentPowerLevel = -160.0
         vadState = .active
 
+        stopLiveActivity()
+
         // Obsidian vault에 마크다운 생성 요청
         if let session = completedSession, !session.chunks.isEmpty {
             ChunkUploader.shared.notifySessionComplete(session: session) { success in
@@ -143,6 +148,7 @@ final class AudioRecorder: RecordingEngineDelegate, VADMonitorDelegate, AudioSes
             guard let self else { return }
             self.lifeLogSessionTime = (self.sessionManager.activeSession?.totalDuration ?? 0) + self.engine.currentTime
             self.vadSilenceDuration = self.vad.silenceDuration
+            self.updateLiveActivity()
         }
         RunLoop.main.add(t, forMode: .common)
         timer = t
@@ -339,6 +345,64 @@ final class AudioRecorder: RecordingEngineDelegate, VADMonitorDelegate, AudioSes
                 return Recording(url: url, date: date, duration: duration.isFinite ? duration : 0, transcript: transcript)
             }
             .sorted { $0.date > $1.date }
+    }
+
+    // MARK: - Live Activity
+
+    private func startLiveActivity() {
+        guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
+
+        let attributes = RecordingAttributes(sessionStartDate: Date())
+        let state = RecordingAttributes.ContentState(
+            elapsedSeconds: 0,
+            chunkCount: 0,
+            isActive: true,
+            vadState: "active",
+            lastTranscript: ""
+        )
+
+        do {
+            liveActivity = try Activity.request(
+                attributes: attributes,
+                content: .init(state: state, staleDate: nil)
+            )
+        } catch {
+            print("[LiveActivity] 시작 실패: \(error)")
+        }
+    }
+
+    private func updateLiveActivity() {
+        guard let liveActivity else { return }
+
+        let lastTranscript = sessionManager.activeSession?.chunks.last?.transcript ?? ""
+        let state = RecordingAttributes.ContentState(
+            elapsedSeconds: Int(lifeLogSessionTime),
+            chunkCount: sessionManager.activeSession?.chunkCount ?? 0,
+            isActive: true,
+            vadState: vadState.rawValue,
+            lastTranscript: String(lastTranscript.suffix(50))
+        )
+
+        Task {
+            await liveActivity.update(.init(state: state, staleDate: nil))
+        }
+    }
+
+    private func stopLiveActivity() {
+        guard let liveActivity else { return }
+
+        let finalState = RecordingAttributes.ContentState(
+            elapsedSeconds: Int(lifeLogSessionTime),
+            chunkCount: sessionManager.activeSession?.chunkCount ?? 0,
+            isActive: false,
+            vadState: "active",
+            lastTranscript: "녹음 완료"
+        )
+
+        Task {
+            await liveActivity.end(.init(state: finalState, staleDate: nil), dismissalPolicy: .after(.now + 5))
+        }
+        self.liveActivity = nil
     }
 
     // MARK: - Network Monitor

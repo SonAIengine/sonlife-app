@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		06D6D80033C99B5704C5F545 /* VoiceRecorderApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E94C064EA5387E4E0F584E8 /* VoiceRecorderApp.swift */; };
+		07AC907567F6828A05D1F3D4 /* RecordingAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7596291B25E94E3AE926B2AC /* RecordingAttributes.swift */; };
 		08375C101727EA58F96732AE /* SessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B7B6BBF60F7245D6BEBF4FE /* SessionManager.swift */; };
 		0DE587ACB303B637153F519D /* AudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8679F4DBA9557B1444CF6AEB /* AudioRecorder.swift */; };
 		21D390382717F45961694739 /* LifeLogControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBFE314F2974FCA2E6FBB14B /* LifeLogControlView.swift */; };
@@ -21,15 +22,44 @@
 		60F4C7E32E73706DCFB7215F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95949CF6309E7ED410A648D6 /* SettingsView.swift */; };
 		627E487A646BC5C494423230 /* AudioSessionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA14F9A81627DA543FC92716 /* AudioSessionHandler.swift */; };
 		64144ED2FCBB1E2D845C63FE /* LocationTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3503D7317F4B7FCF12A50E46 /* LocationTracker.swift */; };
+		713788FD12DCAEBC68773AF1 /* SonLifeWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0627CCB290923BC8C3EF760 /* SonLifeWidgetBundle.swift */; };
 		71778CCE1B3F4AEF4F702E64 /* SessionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46E5676C2254C2D021AA2B0D /* SessionDetailView.swift */; };
 		799EA85C48779E1354A125B9 /* RecordingEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = E57B3BACE5082BB3A45CA965 /* RecordingEngine.swift */; };
+		8D5DCC3B1D18FCA498FEE4F8 /* SonLifeWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B76493C364D76AB3D7C12699 /* SonLifeWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A0D4DF1E7742A3B2655FC94C /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5003381475B394E8EBEF935 /* Session.swift */; };
 		A3AF5798827D037957F14CA5 /* ChunkUploader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C029FE53DE4689166B71E535 /* ChunkUploader.swift */; };
 		D09B885F943E1B52637ACBAD /* VADMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 339D9ABA5A0C67627A56A7C6 /* VADMonitor.swift */; };
+		DD817F9348F776B91F19C064 /* RecordingAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7596291B25E94E3AE926B2AC /* RecordingAttributes.swift */; };
+		F63DB895743C3ACD368FE9CD /* SonLifeLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11EAB6C2D54ECD749EC2BEFC /* SonLifeLiveActivity.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		7AA390A2B1B13B9D3F147E5A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 763FBF9B64DE5BE6308A2495 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 896274D5B9616EF09D3DCDBD;
+			remoteInfo = SonLifeWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		CFCA60AD7E78B1A2E5C8474A /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				8D5DCC3B1D18FCA498FEE4F8 /* SonLifeWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		117594CE7145B6A28DAC35D7 /* AudioLevelMeterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioLevelMeterView.swift; sourceTree = "<group>"; };
+		11EAB6C2D54ECD749EC2BEFC /* SonLifeLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SonLifeLiveActivity.swift; sourceTree = "<group>"; };
 		1B762B46CCF7B5D20C813F0E /* RecordingDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingDetailView.swift; sourceTree = "<group>"; };
 		1E94C064EA5387E4E0F584E8 /* VoiceRecorderApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceRecorderApp.swift; sourceTree = "<group>"; };
 		284A1921BAD6BE084071AC4E /* Recording.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recording.swift; sourceTree = "<group>"; };
@@ -38,6 +68,7 @@
 		46E5676C2254C2D021AA2B0D /* SessionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionDetailView.swift; sourceTree = "<group>"; };
 		6B7B6BBF60F7245D6BEBF4FE /* SessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionManager.swift; sourceTree = "<group>"; };
 		6E8B42937A82F09DD4CC4C36 /* SessionListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionListView.swift; sourceTree = "<group>"; };
+		7596291B25E94E3AE926B2AC /* RecordingAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingAttributes.swift; sourceTree = "<group>"; };
 		8679F4DBA9557B1444CF6AEB /* AudioRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorder.swift; sourceTree = "<group>"; };
 		935B8F09F3F3641FE2B4625D /* VoiceRecorder.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VoiceRecorder.entitlements; sourceTree = "<group>"; };
 		95949CF6309E7ED410A648D6 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -45,11 +76,13 @@
 		A0A55AACF9FECC73E6AC2EB4 /* Chunk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chunk.swift; sourceTree = "<group>"; };
 		A5003381475B394E8EBEF935 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
 		B273B2D8EA31CFBA6F534C20 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		B76493C364D76AB3D7C12699 /* SonLifeWidgetExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = SonLifeWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		C029FE53DE4689166B71E535 /* ChunkUploader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChunkUploader.swift; sourceTree = "<group>"; };
 		C4427EA2D62266B0A6401BB4 /* VoiceRecorder.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = VoiceRecorder.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DBFE314F2974FCA2E6FBB14B /* LifeLogControlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifeLogControlView.swift; sourceTree = "<group>"; };
 		E57B3BACE5082BB3A45CA965 /* RecordingEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingEngine.swift; sourceTree = "<group>"; };
 		EA14F9A81627DA543FC92716 /* AudioSessionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSessionHandler.swift; sourceTree = "<group>"; };
+		F0627CCB290923BC8C3EF760 /* SonLifeWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SonLifeWidgetBundle.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -84,9 +117,18 @@
 		A240BC2D4E0B4322955990C4 /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				B76493C364D76AB3D7C12699 /* SonLifeWidgetExtension.appex */,
 				C4427EA2D62266B0A6401BB4 /* VoiceRecorder.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		A986361701F29298D51BE72F /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				7596291B25E94E3AE926B2AC /* RecordingAttributes.swift */,
+			);
+			path = Shared;
 			sourceTree = "<group>";
 		};
 		BED9EFEEF31D57CF636CD239 /* Models */ = {
@@ -102,9 +144,20 @@
 		C17E81BB4289F9808E6E22AE = {
 			isa = PBXGroup;
 			children = (
+				A986361701F29298D51BE72F /* Shared */,
+				C6D2E5E20FD655F4C431B8F2 /* SonLifeWidget */,
 				37C9F1E00BA79C6A719A47CF /* VoiceRecorder */,
 				A240BC2D4E0B4322955990C4 /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		C6D2E5E20FD655F4C431B8F2 /* SonLifeWidget */ = {
+			isa = PBXGroup;
+			children = (
+				11EAB6C2D54ECD749EC2BEFC /* SonLifeLiveActivity.swift */,
+				F0627CCB290923BC8C3EF760 /* SonLifeWidgetBundle.swift */,
+			);
+			path = SonLifeWidget;
 			sourceTree = "<group>";
 		};
 		E176B790872C954AC3E3A4C7 /* Engine */ = {
@@ -123,16 +176,35 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		896274D5B9616EF09D3DCDBD /* SonLifeWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 95B0A17FC98A4E682C15F1BB /* Build configuration list for PBXNativeTarget "SonLifeWidgetExtension" */;
+			buildPhases = (
+				6B5BB3433C3F74437C1BB041 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SonLifeWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = SonLifeWidgetExtension;
+			productReference = B76493C364D76AB3D7C12699 /* SonLifeWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		D98741633B77D83B869CB50B /* VoiceRecorder */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9D2B77F689451EE604EAACC2 /* Build configuration list for PBXNativeTarget "VoiceRecorder" */;
 			buildPhases = (
 				82B494E0297C7D32250D6D8C /* Sources */,
 				34D620F037A8C1E27445364B /* Resources */,
+				CFCA60AD7E78B1A2E5C8474A /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				B9FFC208D59AA384F006ADE3 /* PBXTargetDependency */,
 			);
 			name = VoiceRecorder;
 			packageProductDependencies = (
@@ -150,6 +222,9 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
+					896274D5B9616EF09D3DCDBD = {
+						DevelopmentTeam = XMF443BPZ9;
+					};
 					D98741633B77D83B869CB50B = {
 						DevelopmentTeam = XMF443BPZ9;
 					};
@@ -169,6 +244,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
+				896274D5B9616EF09D3DCDBD /* SonLifeWidgetExtension */,
 				D98741633B77D83B869CB50B /* VoiceRecorder */,
 			);
 		};
@@ -186,6 +262,16 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		6B5BB3433C3F74437C1BB041 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DD817F9348F776B91F19C064 /* RecordingAttributes.swift in Sources */,
+				F63DB895743C3ACD368FE9CD /* SonLifeLiveActivity.swift in Sources */,
+				713788FD12DCAEBC68773AF1 /* SonLifeWidgetBundle.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		82B494E0297C7D32250D6D8C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -199,6 +285,7 @@
 				21D390382717F45961694739 /* LifeLogControlView.swift in Sources */,
 				64144ED2FCBB1E2D845C63FE /* LocationTracker.swift in Sources */,
 				37472A51E8D9CD4034EF2CB6 /* Recording.swift in Sources */,
+				07AC907567F6828A05D1F3D4 /* RecordingAttributes.swift in Sources */,
 				505F72C40FEB3EC133E47A38 /* RecordingDetailView.swift in Sources */,
 				799EA85C48779E1354A125B9 /* RecordingEngine.swift in Sources */,
 				A0D4DF1E7742A3B2655FC94C /* Session.swift in Sources */,
@@ -212,6 +299,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B9FFC208D59AA384F006ADE3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 896274D5B9616EF09D3DCDBD /* SonLifeWidgetExtension */;
+			targetProxy = 7AA390A2B1B13B9D3F147E5A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		17BCAEB4BCFC413D4EF7EF5D /* Release */ = {
@@ -294,6 +389,29 @@
 				);
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sonaiengine.voicerecorder;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		61351E9C2DCB526EDF8C8A4D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = VoiceRecorder/VoiceRecorder.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XMF443BPZ9;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = SonLife;
+				INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sonaiengine.voicerecorder.widget;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.9;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -393,6 +511,29 @@
 			};
 			name = Debug;
 		};
+		FB87E6BBA0CD292A705173EF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = VoiceRecorder/VoiceRecorder.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XMF443BPZ9;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = SonLife;
+				INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sonaiengine.voicerecorder.widget;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -401,6 +542,15 @@
 			buildConfigurations = (
 				E69263916631CFF050F00A83 /* Debug */,
 				17BCAEB4BCFC413D4EF7EF5D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		95B0A17FC98A4E682C15F1BB /* Build configuration list for PBXNativeTarget "SonLifeWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FB87E6BBA0CD292A705173EF /* Debug */,
+				61351E9C2DCB526EDF8C8A4D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
