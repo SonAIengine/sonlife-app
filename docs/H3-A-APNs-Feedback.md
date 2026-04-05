@@ -201,6 +201,8 @@ enum FeedbackService {
 
 ### 5. `VoiceRecorder/Views/FeedbackView.swift` (신규)
 
+Apple HIG 스타일 — SF Symbols + `.borderedProminent` / `.bordered` 버튼.
+
 ```swift
 import SwiftUI
 
@@ -211,78 +213,86 @@ struct FeedbackView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var comment: String = ""
     @State private var isSending = false
-    @State private var sendResult: String?
+    @State private var errorMessage: String?
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 20) {
-                // 요약 미리보기
-                if !summaryPreview.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("오늘 요약").font(.headline)
-                        Text(summaryPreview)
-                            .font(.body)
-                            .foregroundStyle(.secondary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    // 요약 미리보기
+                    if !summaryPreview.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Label("오늘 요약", systemImage: "sparkles")
+                                .font(.subheadline.weight(.medium))
+                                .foregroundStyle(.secondary)
+                            Text(summaryPreview)
+                                .font(.body)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .padding()
+                        .background(Color(.secondarySystemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                     }
-                    .padding()
-                    .background(Color(.secondarySystemBackground))
-                    .cornerRadius(12)
+
+                    // 코멘트 영역
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("한 마디 남기기 (선택)")
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(.secondary)
+                        TextField("어떤 점이 좋았나요? 아쉬웠나요?", text: $comment, axis: .vertical)
+                            .textFieldStyle(.roundedBorder)
+                            .lineLimit(3...6)
+                    }
+
+                    if let error = errorMessage {
+                        Label(error, systemImage: "exclamationmark.triangle")
+                            .font(.footnote)
+                            .foregroundStyle(.red)
+                    }
                 }
-
-                Text("이 요약 어땠어요?")
-                    .font(.title2).fontWeight(.semibold)
-
-                // 피드백 버튼
-                HStack(spacing: 20) {
-                    feedbackButton(emoji: "👍", label: "좋아요", rating: "good", color: .green)
-                    feedbackButton(emoji: "👎", label: "별로", rating: "bad", color: .red)
-                }
-
-                // 추가 코멘트
-                VStack(alignment: .leading) {
-                    Text("한 마디 (선택)").font(.caption).foregroundStyle(.secondary)
-                    TextField("무엇이 좋았나요? 아쉬웠나요?", text: $comment, axis: .vertical)
-                        .textFieldStyle(.roundedBorder)
-                        .lineLimit(3...6)
-                }
-                .padding(.top)
-
-                if let result = sendResult {
-                    Text(result).foregroundStyle(result.contains("감사") ? .green : .red)
-                }
-
-                Spacer()
+                .padding()
             }
-            .padding()
-            .navigationTitle("피드백")
+            .navigationTitle("요약 피드백")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("닫기") { dismiss() }
                 }
             }
-        }
-    }
+            .safeAreaInset(edge: .bottom) {
+                // Accept / Decline 버튼 (하단 고정)
+                HStack(spacing: 12) {
+                    Button(role: .destructive) {
+                        sendFeedback(rating: "bad")
+                    } label: {
+                        Label("개선 필요", systemImage: "arrow.triangle.2.circlepath")
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 4)
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.large)
+                    .disabled(isSending)
 
-    private func feedbackButton(emoji: String, label: String, rating: String, color: Color) -> some View {
-        Button {
-            sendFeedback(rating: rating)
-        } label: {
-            VStack {
-                Text(emoji).font(.system(size: 40))
-                Text(label).font(.caption)
+                    Button {
+                        sendFeedback(rating: "good")
+                    } label: {
+                        Label("마음에 듦", systemImage: "checkmark")
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 4)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+                    .disabled(isSending)
+                }
+                .padding()
+                .background(.bar)
             }
-            .frame(width: 100, height: 100)
-            .background(color.opacity(0.15))
-            .foregroundStyle(color)
-            .cornerRadius(16)
         }
-        .disabled(isSending)
     }
 
     private func sendFeedback(rating: String) {
         isSending = true
+        errorMessage = nil
         FeedbackService.sendFeedback(
             sessionId: sessionId,
             rating: rating,
@@ -291,15 +301,20 @@ struct FeedbackView: View {
         ) { success in
             isSending = false
             if success {
-                sendResult = "감사합니다! 피드백이 반영됐어요."
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { dismiss() }
+                dismiss()
             } else {
-                sendResult = "전송 실패. 다시 시도해주세요."
+                errorMessage = "전송 실패. 다시 시도해주세요."
             }
         }
     }
 }
 ```
+
+**디자인 메모:**
+- `.borderedProminent` + `checkmark`: 기본 추천 액션 (마음에 듦)
+- `.bordered` + `role: .destructive`: 주의 액션 (개선 필요)
+- `safeAreaInset(edge: .bottom)`: 하단 고정, 스크롤과 분리
+- SF Symbols로 텍스트-아이콘 조합 (이모지 대신)
 
 ### 6. `VoiceRecorder/ContentView.swift` 수정
 
