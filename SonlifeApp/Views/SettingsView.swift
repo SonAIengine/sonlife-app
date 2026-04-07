@@ -124,10 +124,36 @@ struct SettingsView: View {
                 }
                 .disabled(serverURL.isEmpty)
             }
+
+            #if DEBUG
+            Section {
+                Button {
+                    showDevFeedback = true
+                } label: {
+                    Label("피드백 UI 테스트", systemImage: "ladybug")
+                }
+            } header: {
+                Text("개발자")
+            } footer: {
+                Text("가짜 session_id로 FeedbackView를 띄워 서버 /api/feedback 동작 확인")
+            }
+            #endif
         }
         .navigationTitle("설정")
         .navigationBarTitleDisplayMode(.inline)
+        #if DEBUG
+        .sheet(isPresented: $showDevFeedback) {
+            FeedbackView(
+                sessionId: "dev-test-\(Int(Date().timeIntervalSince1970))",
+                summaryPreview: "오늘은 H3-A APNs 통합 작업을 진행했다. iOS 앱에 AppDelegate, FeedbackService, FeedbackView를 추가하고 서버 배포를 검증했다."
+            )
+        }
+        #endif
     }
+
+    #if DEBUG
+    @State private var showDevFeedback = false
+    #endif
 
     private func testConnection() {
         testStatus = .testing

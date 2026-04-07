@@ -4,6 +4,7 @@ import SwiftUI
 enum AppMode: String, CaseIterable {
     case lifeLog = "LifeLog"
     case manual = "녹음"
+    case agent = "에이전트"
 }
 
 struct FeedbackContext: Identifiable {
@@ -47,6 +48,19 @@ struct ContentView: View {
             case .manual:
                 NavigationStack {
                     ManualRecordingView(recorder: recorder)
+                        .toolbar {
+                            ToolbarItem(placement: .topBarTrailing) {
+                                NavigationLink {
+                                    SettingsView()
+                                } label: {
+                                    Image(systemName: "gearshape")
+                                }
+                            }
+                        }
+                }
+            case .agent:
+                NavigationStack {
+                    AgentDashboardView()
                         .toolbar {
                             ToolbarItem(placement: .topBarTrailing) {
                                 NavigationLink {
