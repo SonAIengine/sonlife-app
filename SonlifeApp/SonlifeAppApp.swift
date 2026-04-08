@@ -59,14 +59,29 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
                                 didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
         let userInfo = response.notification.request.content.userInfo
-        if let type = userInfo["type"] as? String, type == "feedback_request",
-           let sessionId = userInfo["session_id"] as? String {
-            let summary = userInfo["summary_preview"] as? String ?? ""
-            NotificationCenter.default.post(
-                name: .showFeedback,
-                object: nil,
-                userInfo: ["session_id": sessionId, "summary": summary]
-            )
+        if let type = userInfo["type"] as? String {
+            switch type {
+            case "feedback_request":
+                if let sessionId = userInfo["session_id"] as? String {
+                    let summary = userInfo["summary_preview"] as? String ?? ""
+                    NotificationCenter.default.post(
+                        name: .showFeedback,
+                        object: nil,
+                        userInfo: ["session_id": sessionId, "summary": summary]
+                    )
+                }
+            case "approval_request":
+                // Phase A — 에이전트 HITL 승인
+                if let token = userInfo["token"] as? String {
+                    NotificationCenter.default.post(
+                        name: .showApproval,
+                        object: nil,
+                        userInfo: ["token": token]
+                    )
+                }
+            default:
+                break
+            }
         }
         completionHandler()
     }
@@ -74,4 +89,5 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
 
 extension Notification.Name {
     static let showFeedback = Notification.Name("SonLifeShowFeedback")
+    static let showApproval = Notification.Name("SonLifeShowApproval")
 }

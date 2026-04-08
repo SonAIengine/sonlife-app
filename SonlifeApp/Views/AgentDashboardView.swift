@@ -7,6 +7,7 @@ struct AgentDashboardView: View {
     @State private var isLoading = true
     @State private var errorMessage: String?
     @State private var selectedTab: DashboardTab = .sessions
+    @State private var showingCommandInput = false
 
     enum DashboardTab: String, CaseIterable {
         case sessions = "세션"
@@ -16,6 +17,42 @@ struct AgentDashboardView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
+                // Phase A — 명령 발행 버튼
+                Button {
+                    showingCommandInput = true
+                } label: {
+                    HStack {
+                        Image(systemName: "text.bubble.fill")
+                            .font(.title3)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("에이전트 명령")
+                                .font(.subheadline.weight(.semibold))
+                            Text("자연어로 작업 위임 (메일, 코드, 리서치...)")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
+                    }
+                    .padding()
+                    .background(
+                        LinearGradient(
+                            colors: [.blue.opacity(0.15), .purple.opacity(0.15)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .stroke(Color.blue.opacity(0.3), lineWidth: 1)
+                    }
+                    .foregroundStyle(.primary)
+                }
+                .padding(.horizontal)
+
                 // Stats cards
                 if let stats {
                     statsSection(stats)
@@ -58,6 +95,9 @@ struct AgentDashboardView: View {
             }
         }
         .task { await loadAll() }
+        .sheet(isPresented: $showingCommandInput) {
+            CommandInputView()
+        }
     }
 
     // MARK: - Stats

@@ -13,10 +13,16 @@ struct FeedbackContext: Identifiable {
     let summary: String
 }
 
+struct ApprovalContext: Identifiable {
+    let id = UUID()
+    let approval: ApprovalDetail
+}
+
 struct ContentView: View {
     @State private var recorder = AudioRecorder()
     @State private var mode: AppMode = .lifeLog
     @State private var feedbackContext: FeedbackContext?
+    @State private var approvalContext: ApprovalContext?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -84,10 +90,29 @@ struct ContentView: View {
         .sheet(item: $feedbackContext) { ctx in
             FeedbackView(sessionId: ctx.sessionId, summaryPreview: ctx.summary)
         }
+        .sheet(item: $approvalContext) { ctx in
+            ApprovalSheetView(approval: ctx.approval) {
+                approvalContext = nil
+            }
+        }
         .onReceive(NotificationCenter.default.publisher(for: .showFeedback)) { notif in
             if let sessionId = notif.userInfo?["session_id"] as? String {
                 let summary = notif.userInfo?["summary"] as? String ?? ""
                 feedbackContext = FeedbackContext(sessionId: sessionId, summary: summary)
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .showApproval)) { notif in
+            guard let token = notif.userInfo?["token"] as? String else { return }
+            // 토큰으로 approval 상세 fetch 후 sheet 띄움
+            Task {
+                do {
+                    let approval = try await OrchestratorAPI.fetchApproval(token: token)
+                    await MainActor.run {
+                        approvalContext = ApprovalContext(approval: approval)
+                    }
+                } catch {
+                    print("[ContentView] approval fetch 실패: \(error)")
+                }
             }
         }
     }
