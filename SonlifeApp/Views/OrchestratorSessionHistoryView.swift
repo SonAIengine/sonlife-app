@@ -153,7 +153,7 @@ private struct OrchestratorSessionRow: View {
 
 // MARK: - Detail Sheet
 
-private struct OrchestratorSessionDetailSheet: View {
+struct OrchestratorSessionDetailSheet: View {
     let session: OrchestratorSession
     @Environment(\.dismiss) private var dismiss
 

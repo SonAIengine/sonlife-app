@@ -41,8 +41,8 @@ final class ChunkUploader {
         config.timeoutIntervalForResource = 300
         session = URLSession(configuration: config)
 
-        let savedURL = UserDefaults.standard.string(forKey: "stt_server_url") ?? "http://14.6.220.78:8100"
-        serverURL = URL(string: savedURL) ?? URL(string: "http://14.6.220.78:8100")!
+        let savedURL = UserDefaults.standard.string(forKey: "stt_server_url") ?? "http://14.6.220.78:8101"
+        serverURL = URL(string: savedURL) ?? URL(string: "http://14.6.220.78:8101")!
 
         loadPendingUploads()
     }

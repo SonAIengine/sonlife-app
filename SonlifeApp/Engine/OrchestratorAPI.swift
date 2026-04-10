@@ -87,7 +87,8 @@ enum OrchestratorAPI {
     // MARK: - Private
 
     private static func get(_ path: String) async throws -> Data {
-        guard let url = URL(string: serverURL)?.appendingPathComponent(path) else {
+        let base = serverURL.hasSuffix("/") ? serverURL : serverURL + "/"
+        guard let url = URL(string: base + path) else {
             throw URLError(.badURL)
         }
         var request = URLRequest(url: url)
@@ -100,7 +101,8 @@ enum OrchestratorAPI {
     }
 
     private static func post<T: Encodable>(_ path: String, body: T) async throws -> CommandResponse {
-        guard let url = URL(string: serverURL)?.appendingPathComponent(path) else {
+        let base = serverURL.hasSuffix("/") ? serverURL : serverURL + "/"
+        guard let url = URL(string: base + path) else {
             throw URLError(.badURL)
         }
         var request = URLRequest(url: url)

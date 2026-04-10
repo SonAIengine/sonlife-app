@@ -33,7 +33,7 @@ targets:
         MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: "1"
         SWIFT_VERSION: "5.9"
-        DEVELOPMENT_TEAM: XMF443BPZ9
+        CODE_SIGN_STYLE: Automatic
         INFOPLIST_KEY_NSMicrophoneUsageDescription: "녹음을 위해 마이크 접근이 필요합니다."
         INFOPLIST_KEY_NSSpeechRecognitionUsageDescription: "음성을 텍스트로 변환하기 위해 음성 인식 접근이 필요합니다."
         INFOPLIST_KEY_UIBackgroundModes: "audio remote-notification"
@@ -67,7 +67,7 @@ targets:
         MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: "1"
         SWIFT_VERSION: "5.9"
-        DEVELOPMENT_TEAM: XMF443BPZ9
+        CODE_SIGN_STYLE: Automatic
     entitlements:
       path: SonlifeApp/SonlifeApp.entitlements
       properties:

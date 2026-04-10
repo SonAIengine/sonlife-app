@@ -1,12 +1,6 @@
 import AVFoundation
 import SwiftUI
 
-enum AppMode: String, CaseIterable {
-    case lifeLog = "LifeLog"
-    case manual = "녹음"
-    case agent = "에이전트"
-}
-
 struct FeedbackContext: Identifiable {
     let id = UUID()
     let sessionId: String
@@ -20,64 +14,12 @@ struct ApprovalContext: Identifiable {
 
 struct ContentView: View {
     @State private var recorder = AudioRecorder()
-    @State private var mode: AppMode = .lifeLog
     @State private var feedbackContext: FeedbackContext?
     @State private var approvalContext: ApprovalContext?
 
     var body: some View {
-        VStack(spacing: 0) {
-            // 모드 선택
-            Picker("Mode", selection: $mode) {
-                ForEach(AppMode.allCases, id: \.self) { m in
-                    Text(m.rawValue).tag(m)
-                }
-            }
-            .pickerStyle(.segmented)
-            .padding(.horizontal)
-            .padding(.vertical, 8)
-
-            // 탭별 독립 NavigationStack
-            switch mode {
-            case .lifeLog:
-                NavigationStack {
-                    LifeLogView(recorder: recorder)
-                        .toolbar {
-                            ToolbarItem(placement: .topBarTrailing) {
-                                NavigationLink {
-                                    SettingsView()
-                                } label: {
-                                    Image(systemName: "gearshape")
-                                }
-                            }
-                        }
-                }
-            case .manual:
-                NavigationStack {
-                    ManualRecordingView(recorder: recorder)
-                        .toolbar {
-                            ToolbarItem(placement: .topBarTrailing) {
-                                NavigationLink {
-                                    SettingsView()
-                                } label: {
-                                    Image(systemName: "gearshape")
-                                }
-                            }
-                        }
-                }
-            case .agent:
-                NavigationStack {
-                    AgentDashboardView()
-                        .toolbar {
-                            ToolbarItem(placement: .topBarTrailing) {
-                                NavigationLink {
-                                    SettingsView()
-                                } label: {
-                                    Image(systemName: "gearshape")
-                                }
-                            }
-                        }
-                }
-            }
+        NavigationStack {
+            TaskInboxView(recorder: recorder)
         }
         .alert("오류", isPresented: .init(
             get: { recorder.errorMessage != nil },
@@ -103,7 +45,6 @@ struct ContentView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .showApproval)) { notif in
             guard let token = notif.userInfo?["token"] as? String else { return }
-            // 토큰으로 approval 상세 fetch 후 sheet 띄움
             Task {
                 do {
                     let approval = try await OrchestratorAPI.fetchApproval(token: token)
@@ -118,7 +59,7 @@ struct ContentView: View {
     }
 }
 
-// MARK: - LifeLog Tab
+// MARK: - LifeLog (하위 메뉴에서 사용)
 
 struct LifeLogView: View {
     @Bindable var recorder: AudioRecorder
@@ -135,7 +76,7 @@ struct LifeLogView: View {
     }
 }
 
-// MARK: - Manual Recording Tab
+// MARK: - 녹음 (하위 메뉴에서 사용)
 
 struct ManualRecordingView: View {
     @Bindable var recorder: AudioRecorder
