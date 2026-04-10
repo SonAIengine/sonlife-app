@@ -4,8 +4,13 @@ import SwiftUI
 ///
 /// 3 섹션으로 에이전트 작업 상태를 한 화면에 표시:
 /// - 승인 대기: HITL pending (`/api/approvals/pending`)
-/// - 진행 중: running (5초 폴링)
+/// - 진행 중: running + 각 세션에 SSE 라이브 스트림 (B: 폴링 → 실시간)
 /// - 완료: completed / failed / rejected 통합, 실패는 빨간색으로 구분
+///
+/// 실시간 전략 (B):
+/// - 5초 폴링으로 목록 동기화 (fallback)
+/// - 새로 나타난 running 세션에 SSE 스트림 자동 open
+/// - 세션 종료 이벤트(completed/failed/suspended) 수신 시 즉시 loadAll()
 ///
 /// 상단 바:
 /// - 왼쪽 햄버거: 하위 메뉴 (LifeLog / 녹음 / 대시보드 / 설정)
@@ -24,6 +29,10 @@ struct TaskInboxView: View {
     @State private var showingSkillPicker = false
     @State private var selectedApproval: ApprovalDetail?
     @State private var selectedSession: OrchestratorSession?
+
+    // B: 라이브 상태 — session_id → 최신 이벤트 정보
+    @State private var liveStates: [String: LiveSessionState] = [:]
+    @State private var streamTasks: [String: Task<Void, Never>] = [:]
 
     var body: some View {
         List {
@@ -53,7 +62,7 @@ struct TaskInboxView: View {
                         Button {
                             selectedSession = session
                         } label: {
-                            InboxSessionRow(session: session)
+                            InboxSessionRow(session: session, liveState: liveStates[session.id])
                         }
                         .buttonStyle(.plain)
                     }
@@ -83,7 +92,7 @@ struct TaskInboxView: View {
                         Button {
                             selectedSession = session
                         } label: {
-                            InboxSessionRow(session: session)
+                            InboxSessionRow(session: session, liveState: nil)
                         }
                         .buttonStyle(.plain)
                     }
@@ -178,11 +187,105 @@ struct TaskInboxView: View {
                 $0.status == .completed || $0.status == .failed || $0.status == .rejected
             }
             errorMessage = nil
+
+            // B: 진행 중 세션의 SSE 스트림 관리 — 새로 생긴 세션에 open, 없어진 세션에 cancel
+            syncStreams()
         } catch {
             errorMessage = error.localizedDescription
         }
         isLoading = false
     }
+
+    // MARK: - B: SSE 스트림 diff 동기화
+
+    @MainActor
+    private func syncStreams() {
+        let currentIds = Set(runningSessions.map { $0.id })
+
+        // 새로 나타난 세션에 스트림 open
+        for sid in currentIds where streamTasks[sid] == nil {
+            openStream(for: sid)
+        }
+
+        // 더 이상 진행 중이 아닌 세션의 스트림 종료
+        for (sid, task) in streamTasks where !currentIds.contains(sid) {
+            task.cancel()
+            streamTasks.removeValue(forKey: sid)
+            liveStates.removeValue(forKey: sid)
+        }
+    }
+
+    private func openStream(for sessionId: String) {
+        let task = Task { @MainActor in
+            do {
+                for try await event in OrchestratorAPI.sessionEventStream(sessionId: sessionId) {
+                    if Task.isCancelled { break }
+                    ingestEvent(event, sessionId: sessionId)
+                    if isTerminalEvent(event.type) {
+                        await loadAll()   // 목록 즉시 refresh
+                        break
+                    }
+                }
+            } catch {
+                // 스트림 실패는 폴링이 커버함 — silent
+            }
+        }
+        streamTasks[sessionId] = task
+    }
+
+    private func ingestEvent(_ event: SSEClient.Event, sessionId: String) {
+        var state = liveStates[sessionId] ?? LiveSessionState()
+        state.eventCount += 1
+
+        // 서버 payload 구조: {"type": "...", "data": {...}}
+        let inner = event.data["data"] as? [String: Any] ?? event.data
+
+        switch event.type {
+        case "tool.called":
+            state.lastToolName = inner["tool_name"] as? String
+            state.currentStep = inner["step"] as? Int ?? state.currentStep
+            state.lastEventType = "tool.called"
+            state.phase = "\(state.lastToolName ?? "tool") 호출 중"
+        case "tool.completed":
+            state.lastToolName = inner["tool_name"] as? String
+            state.currentStep = inner["step"] as? Int ?? state.currentStep
+            state.lastEventType = "tool.completed"
+            state.phase = "\(state.lastToolName ?? "tool") 완료"
+        case "tool.failed":
+            state.lastEventType = "tool.failed"
+            state.phase = "도구 실패"
+        case "session.started":
+            state.lastEventType = "session.started"
+            state.phase = "시작됨"
+        case "session.completed":
+            state.lastEventType = "session.completed"
+            state.phase = "완료"
+        case "session.failed":
+            state.lastEventType = "session.failed"
+            state.phase = "실패"
+        case "session.suspended":
+            state.lastEventType = "session.suspended"
+            state.phase = "승인 대기"
+        default:
+            break
+        }
+        liveStates[sessionId] = state
+    }
+
+    private func isTerminalEvent(_ type: String) -> Bool {
+        type == "session.completed" || type == "session.failed"
+            || type == "session.suspended" || type == "end"
+    }
+}
+
+// MARK: - B: 라이브 세션 상태
+
+struct LiveSessionState: Equatable {
+    var lastEventType: String = ""
+    var lastToolName: String? = nil
+    var currentStep: Int = 0
+    var eventCount: Int = 0
+    var phase: String = ""
 }
 
 // MARK: - Section header
@@ -298,13 +401,15 @@ struct PermissionBadge: View {
 
 private struct InboxSessionRow: View {
     let session: OrchestratorSession
+    let liveState: LiveSessionState?
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: session.statusIcon)
+            Image(systemName: iconName)
                 .font(.title3)
                 .foregroundStyle(statusColor)
                 .frame(width: 28)
+                .symbolEffect(.pulse, options: .repeating, isActive: isLive)
 
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 4) {
@@ -334,9 +439,22 @@ private struct InboxSessionRow: View {
                         .foregroundStyle(.secondary)
                     Text("·")
                         .foregroundStyle(.tertiary)
-                    Text(session.statusDisplay)
-                        .font(.caption)
-                        .foregroundStyle(statusColor)
+                    if let live = liveState, !live.phase.isEmpty, session.status == .running {
+                        // 라이브 상태 우선 표시
+                        Text(live.phase)
+                            .font(.caption)
+                            .foregroundStyle(.blue)
+                            .lineLimit(1)
+                        if live.currentStep > 0 {
+                            Text("#\(live.currentStep)")
+                                .font(.caption2.monospacedDigit())
+                                .foregroundStyle(.tertiary)
+                        }
+                    } else {
+                        Text(session.statusDisplay)
+                            .font(.caption)
+                            .foregroundStyle(statusColor)
+                    }
                     Spacer()
                     Text(formattedDate)
                         .font(.caption2.monospacedDigit())
@@ -345,6 +463,17 @@ private struct InboxSessionRow: View {
             }
         }
         .padding(.vertical, 2)
+    }
+
+    private var isLive: Bool {
+        session.status == .running && liveState != nil
+    }
+
+    private var iconName: String {
+        if isLive {
+            return "dot.radiowaves.left.and.right"
+        }
+        return session.statusIcon
     }
 
     private var titleText: String {
