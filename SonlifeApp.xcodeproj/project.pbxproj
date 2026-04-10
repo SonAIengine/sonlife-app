@@ -38,6 +38,7 @@
 		C0145F94FC847B40A7856441 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C9FF92FC8160EDA69262158 /* SettingsView.swift */; };
 		D64D25C37313E858CFDF77FA /* ApprovalSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 058E667057DEC875B2988207 /* ApprovalSheetView.swift */; };
 		DBF84366AC020FC2485C409D /* SonLifeWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3700A2ABDB1FEBFB10085027 /* SonLifeWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E1B7889E71D6DB45ACB7F513 /* SkillPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 141DD0D3CB75BAD886A32C0F /* SkillPickerView.swift */; };
 		EE72B5E5FF868BDB9986EAF2 /* AudioLevelMeterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F6A3D1C5F04C8FA6D76CB16 /* AudioLevelMeterView.swift */; };
 		F3D8C4C21B7A085B96ECBD84 /* LifeLogControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B1138EEC7185EE2E58E82A4 /* LifeLogControlView.swift */; };
 		F856027FFED5D5E9C37E1E08 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FD4D02F58E925BDA8FA878D5 /* Assets.xcassets */; };
@@ -75,18 +76,19 @@
 		0C0FE8065B0084985ABF09B7 /* FeedbackService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackService.swift; sourceTree = "<group>"; };
 		0C786B892A2C7ACD414C15B4 /* HarnessService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HarnessService.swift; sourceTree = "<group>"; };
 		0C9FF92FC8160EDA69262158 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		141DD0D3CB75BAD886A32C0F /* SkillPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkillPickerView.swift; sourceTree = "<group>"; };
 		23208DF6879E75D410F1BB90 /* SonlifeAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SonlifeAppApp.swift; sourceTree = "<group>"; };
 		302D7BAD02239BFE95DA41A5 /* SessionListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionListView.swift; sourceTree = "<group>"; };
 		3280D56D2C4346301D69422E /* AudioRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorder.swift; sourceTree = "<group>"; };
 		34A7C1D1FEBF929706E704C3 /* VADMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VADMonitor.swift; sourceTree = "<group>"; };
-		3700A2ABDB1FEBFB10085027 /* SonLifeWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SonLifeWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		3700A2ABDB1FEBFB10085027 /* SonLifeWidgetExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = SonLifeWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B1138EEC7185EE2E58E82A4 /* LifeLogControlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifeLogControlView.swift; sourceTree = "<group>"; };
 		3B901045F6314E749FB9EC43 /* RecordingDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingDetailView.swift; sourceTree = "<group>"; };
 		43F81FC68E7598A35C8C7FAD /* SonLifeWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SonLifeWidgetBundle.swift; sourceTree = "<group>"; };
 		455AB03D2B94AA822BDA923C /* RecordingEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingEngine.swift; sourceTree = "<group>"; };
 		50E5B886F37C125525E5494F /* FeedbackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackView.swift; sourceTree = "<group>"; };
 		57C1BD607266EB615AF4EDCF /* AgentDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentDashboardView.swift; sourceTree = "<group>"; };
-		5C11E6D0FF4B113D6EFC45CA /* SonlifeApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SonlifeApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5C11E6D0FF4B113D6EFC45CA /* SonlifeApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SonlifeApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		791141A6AD10AC5CD4F07F31 /* LocationTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationTracker.swift; sourceTree = "<group>"; };
 		893BAC8D8B088C5A52B25EFA /* ChunkUploader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChunkUploader.swift; sourceTree = "<group>"; };
 		8B22B375F12F0CFB861FF2D9 /* CommandInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandInputView.swift; sourceTree = "<group>"; };
@@ -193,6 +195,7 @@
 				E6793E222635D42106BC5962 /* SessionDetailView.swift */,
 				302D7BAD02239BFE95DA41A5 /* SessionListView.swift */,
 				0C9FF92FC8160EDA69262158 /* SettingsView.swift */,
+				141DD0D3CB75BAD886A32C0F /* SkillPickerView.swift */,
 				D718BE03818C4F253C066849 /* TaskInboxView.swift */,
 			);
 			path = Views;
@@ -256,9 +259,11 @@
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					005CC89A07342BD79A0E7F7B = {
+						DevelopmentTeam = ASPD4J464Z;
 						ProvisioningStyle = Automatic;
 					};
 					A902A63259F343B5739A1F7A = {
+						DevelopmentTeam = ASPD4J464Z;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -326,6 +331,7 @@
 				6233DC78CA5DAC295338DC8E /* SessionListView.swift in Sources */,
 				1ED751D2ABCAB6C3696D186D /* SessionManager.swift in Sources */,
 				C0145F94FC847B40A7856441 /* SettingsView.swift in Sources */,
+				E1B7889E71D6DB45ACB7F513 /* SkillPickerView.swift in Sources */,
 				86D732EAD84A6B28111361DA /* SonlifeAppApp.swift in Sources */,
 				A01C90CA879679BD2C4E4976 /* TaskInboxView.swift in Sources */,
 				A6793520B5E5D42E4B57D55F /* VADMonitor.swift in Sources */,

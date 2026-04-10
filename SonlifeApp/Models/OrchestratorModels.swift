@@ -174,6 +174,32 @@ struct OrchestratorSession: Codable, Identifiable {
     }
 }
 
+// MARK: - L09 Skills
+
+struct SkillArg: Codable, Identifiable {
+    let name: String
+    let description: String
+    let required: Bool
+    let defaultValue: String?
+
+    var id: String { name }
+
+    enum CodingKeys: String, CodingKey {
+        case name
+        case description
+        case required
+        case defaultValue = "default"
+    }
+}
+
+struct Skill: Codable, Identifiable {
+    let name: String
+    let description: String
+    let args: [SkillArg]
+
+    var id: String { name }
+}
+
 struct SessionUsage: Codable {
     let inputTokens: Int?
     let outputTokens: Int?

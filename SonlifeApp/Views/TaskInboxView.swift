@@ -21,6 +21,7 @@ struct TaskInboxView: View {
 
     @State private var showingCommandInput = false
     @State private var showingMenu = false
+    @State private var showingSkillPicker = false
     @State private var selectedApproval: ApprovalDetail?
     @State private var selectedSession: OrchestratorSession?
 
@@ -117,8 +118,17 @@ struct TaskInboxView: View {
                 .accessibilityLabel("메뉴")
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    showingCommandInput = true
+                Menu {
+                    Button {
+                        showingCommandInput = true
+                    } label: {
+                        Label("텍스트 명령", systemImage: "text.bubble")
+                    }
+                    Button {
+                        showingSkillPicker = true
+                    } label: {
+                        Label("스킬 실행", systemImage: "sparkles")
+                    }
                 } label: {
                     Image(systemName: "plus")
                         .imageScale(.large)
@@ -138,6 +148,9 @@ struct TaskInboxView: View {
         }
         .sheet(isPresented: $showingCommandInput) {
             CommandInputView()
+        }
+        .sheet(isPresented: $showingSkillPicker) {
+            SkillPickerView()
         }
         .sheet(isPresented: $showingMenu) {
             InboxMenuSheet(recorder: recorder)

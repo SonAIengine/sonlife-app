@@ -84,6 +84,24 @@ enum OrchestratorAPI {
         return try jsonDecoder().decode(Response.self, from: data).pending
     }
 
+    // MARK: - Skills (L09)
+
+    static func fetchSkills() async throws -> [Skill] {
+        let data = try await get("api/skills")
+        struct Response: Codable {
+            let skills: [Skill]
+            let total: Int
+        }
+        return try jsonDecoder().decode(Response.self, from: data).skills
+    }
+
+    static func runSkill(name: String, args: [String: String]) async throws -> CommandResponse {
+        struct Request: Codable {
+            let args: [String: String]
+        }
+        return try await post("api/skills/\(name)/run", body: Request(args: args))
+    }
+
     // MARK: - Private
 
     private static func get(_ path: String) async throws -> Data {
