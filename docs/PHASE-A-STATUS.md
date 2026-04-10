@@ -1,6 +1,6 @@
 # Phase A — iOS 클라이언트 구현 상태
 
-> 작성: 2026-04-09
+> 작성: 2026-04-09 | 마지막 갱신: 2026-04-10
 > 짝: [sonlife/docs/PHASE-A-STATUS.md](https://github.com/SonAIengine/sonlife/blob/main/docs/PHASE-A-STATUS.md)
 > 비전 원본: [AGENT-SYSTEM-VISION.md](./AGENT-SYSTEM-VISION.md)
 
@@ -13,6 +13,17 @@
 - **APNs type 확장**: 기존 `feedback_request` + 신규 `approval_request` 핸들링
 - **기존 H3-A FeedbackView와 공존** — 별도 namespace (모델 이름 충돌 없음)
 - **Xcode Build 통과**
+
+## 백엔드 대응 상태 (2026-04-10)
+
+백엔드는 이후 다음 변화들을 반영:
+- **범용 agent_runner** (specialist 제거) — iOS API 계약은 불변
+- **graph-tool-call 동적 tool 선택** — iOS 입장에선 투명
+- **Tool manifest (@sonlife_tool + auto-discovery)** — iOS 영향 없음
+- **`coding_execute` composite tool** — 코딩 승인 시 diff payload가 달라짐 ⚠️
+
+**iOS 측 미지원 갭**:
+- **ApprovalSheetView의 코드 diff 렌더링** — 현재 email 전용 레이아웃. `coding_execute` → `commit_and_push` 승인 요청이 오면 diff를 제대로 보여주지 못함. 이게 **다음 iOS 작업의 최우선 항목**.
 
 ---
 
