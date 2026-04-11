@@ -141,6 +141,9 @@ struct OrchestratorSession: Codable, Identifiable {
     let usage: SessionUsage?
     let hasSubAgent: Bool    // L07 격리 실행 존재 여부
     let parentSessionId: String?
+    let origin: String       // "user" | "autonomous" — Phase D 자율 루프
+    let triggerSource: String?    // 자율 세션이면 "email" / "teams" / "calendar"
+    let triggerEventId: String?   // lifelog source_id 추적
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -156,6 +159,9 @@ struct OrchestratorSession: Codable, Identifiable {
         case usage
         case hasSubAgent = "has_sub_agent"
         case parentSessionId = "parent_session_id"
+        case origin
+        case triggerSource = "trigger_source"
+        case triggerEventId = "trigger_event_id"
     }
 
     init(from decoder: Decoder) throws {
@@ -173,7 +179,12 @@ struct OrchestratorSession: Codable, Identifiable {
         usage = try c.decodeIfPresent(SessionUsage.self, forKey: .usage)
         hasSubAgent = try c.decodeIfPresent(Bool.self, forKey: .hasSubAgent) ?? false
         parentSessionId = try c.decodeIfPresent(String.self, forKey: .parentSessionId)
+        origin = try c.decodeIfPresent(String.self, forKey: .origin) ?? "user"
+        triggerSource = try c.decodeIfPresent(String.self, forKey: .triggerSource)
+        triggerEventId = try c.decodeIfPresent(String.self, forKey: .triggerEventId)
     }
+
+    var isAutonomous: Bool { origin == "autonomous" }
 
     var statusDisplay: String {
         switch status {

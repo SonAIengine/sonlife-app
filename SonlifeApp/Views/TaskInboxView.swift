@@ -608,6 +608,20 @@ private struct InboxSessionRow: View {
                             .foregroundStyle(.purple)
                             .clipShape(Capsule())
                     }
+                    if session.isAutonomous {
+                        HStack(spacing: 2) {
+                            Image(systemName: "sparkles")
+                                .font(.caption2)
+                            Text(autonomousLabel)
+                                .font(.caption2.weight(.semibold))
+                        }
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 1)
+                        .background(Color.indigo.opacity(0.15))
+                        .foregroundStyle(.indigo)
+                        .clipShape(Capsule())
+                        .accessibilityLabel("자율 실행: \(autonomousLabel)")
+                    }
                 }
                 HStack(spacing: 6) {
                     Text(session.agentName)
@@ -669,6 +683,16 @@ private struct InboxSessionRow: View {
         case .completed: return .green
         case .failed: return .red
         case .rejected: return .gray
+        }
+    }
+
+    private var autonomousLabel: String {
+        // trigger_source가 있으면 "자율 · 메일" 식으로 구분
+        switch session.triggerSource {
+        case "email": return "자율 · 메일"
+        case "teams": return "자율 · Teams"
+        case "calendar": return "자율 · 캘린더"
+        default: return "자율"
         }
     }
 
