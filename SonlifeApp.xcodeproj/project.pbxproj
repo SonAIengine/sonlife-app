@@ -17,6 +17,7 @@
 		33ADF2D93BC0D64810FA654B /* AudioSessionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4F0CD21F732C80869F81376 /* AudioSessionHandler.swift */; };
 		38CE97793CDF3204748C7773 /* RecordingAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = D650DFEE7C02176D018F0B14 /* RecordingAttributes.swift */; };
 		3D676AA441A98CFFBD9B8898 /* RecordingAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = D650DFEE7C02176D018F0B14 /* RecordingAttributes.swift */; };
+		3EA0AF94CEE89909CBCFC468 /* Haptic.swift in Sources */ = {isa = PBXBuildFile; fileRef = E88D4D17D6410CE852595CBF /* Haptic.swift */; };
 		3EC20A35FC6586E4EA67EE58 /* Chunk.swift in Sources */ = {isa = PBXBuildFile; fileRef = F24DC61161718D9A40130B4B /* Chunk.swift */; };
 		4124635DDAE717AA2B8F22BE /* LocationTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 791141A6AD10AC5CD4F07F31 /* LocationTracker.swift */; };
 		4EB468F46A971448E2B096B3 /* SSEClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE53E9A83394C73B0BE3BD29 /* SSEClient.swift */; };
@@ -106,6 +107,7 @@
 		DBF2D3242875E6D8B3B2B682 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		E4F0CD21F732C80869F81376 /* AudioSessionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSessionHandler.swift; sourceTree = "<group>"; };
 		E6793E222635D42106BC5962 /* SessionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionDetailView.swift; sourceTree = "<group>"; };
+		E88D4D17D6410CE852595CBF /* Haptic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptic.swift; sourceTree = "<group>"; };
 		E901EDE672F6DC7C032E42EC /* SonLifeLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SonLifeLiveActivity.swift; sourceTree = "<group>"; };
 		F0B11020DE21E3672FA8364B /* OrchestratorModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrchestratorModels.swift; sourceTree = "<group>"; };
 		F24DC61161718D9A40130B4B /* Chunk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chunk.swift; sourceTree = "<group>"; };
@@ -155,6 +157,7 @@
 				E4F0CD21F732C80869F81376 /* AudioSessionHandler.swift */,
 				893BAC8D8B088C5A52B25EFA /* ChunkUploader.swift */,
 				0C0FE8065B0084985ABF09B7 /* FeedbackService.swift */,
+				E88D4D17D6410CE852595CBF /* Haptic.swift */,
 				0C786B892A2C7ACD414C15B4 /* HarnessService.swift */,
 				791141A6AD10AC5CD4F07F31 /* LocationTracker.swift */,
 				CA0F936383052F1EE4A16347 /* OrchestratorAPI.swift */,
@@ -323,6 +326,7 @@
 				A506B16BC7EC58473C56B5E6 /* ContentView.swift in Sources */,
 				0AE7498ED86D53DC777F3A2A /* FeedbackService.swift in Sources */,
 				BEF16C50CA5F79E576C2534E /* FeedbackView.swift in Sources */,
+				3EA0AF94CEE89909CBCFC468 /* Haptic.swift in Sources */,
 				51D24605D58C173347DD72DA /* HarnessService.swift in Sources */,
 				F3D8C4C21B7A085B96ECBD84 /* LifeLogControlView.swift in Sources */,
 				4124635DDAE717AA2B8F22BE /* LocationTracker.swift in Sources */,

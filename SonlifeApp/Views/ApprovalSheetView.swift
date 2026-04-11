@@ -252,12 +252,14 @@ struct ApprovalSheetView: View {
                 token: approval.token,
                 modifiedArgs: modified
             )
+            Haptic.success()
             resultMessage = response.result?.summary ?? "처리 완료"
             // 잠시 보여준 후 닫기
             try? await Task.sleep(nanoseconds: 800_000_000)
             onResolved()
             dismiss()
         } catch {
+            Haptic.error()
             errorMessage = error.localizedDescription
         }
         isSubmitting = false
@@ -272,11 +274,13 @@ struct ApprovalSheetView: View {
                 token: approval.token,
                 reason: "사용자 거절"
             )
+            Haptic.warning()
             resultMessage = "거절 처리 완료"
             try? await Task.sleep(nanoseconds: 600_000_000)
             onResolved()
             dismiss()
         } catch {
+            Haptic.error()
             errorMessage = error.localizedDescription
         }
         isSubmitting = false

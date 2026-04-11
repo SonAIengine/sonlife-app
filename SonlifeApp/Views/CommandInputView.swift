@@ -28,6 +28,21 @@ struct CommandInputView: View {
         "팀원들에게 다음주 회의 일정 메일",
     ]
 
+    // C: 명령 히스토리 (로컬 UserDefaults, 최근 20개)
+    @AppStorage("command_history") private var historyJson: String = "[]"
+    private var history: [String] {
+        (try? JSONDecoder().decode([String].self, from: Data(historyJson.utf8))) ?? []
+    }
+    private func saveToHistory(_ text: String) {
+        var items = history.filter { $0 != text }  // 중복 제거
+        items.insert(text, at: 0)
+        if items.count > 20 { items = Array(items.prefix(20)) }
+        if let data = try? JSONEncoder().encode(items),
+           let json = String(data: data, encoding: .utf8) {
+            historyJson = json
+        }
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -47,6 +62,46 @@ struct CommandInputView: View {
                         .disabled(isDispatching)
                     }
 
+                    // 히스토리 (최근 5개)
+                    if !history.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Text("최근 사용")
+                                    .font(.caption)
+                                    .foregroundStyle(.tertiary)
+                                Spacer()
+                                Button("전체 지우기") {
+                                    Haptic.tap()
+                                    historyJson = "[]"
+                                }
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                            }
+                            ForEach(Array(history.prefix(5)), id: \.self) { item in
+                                Button {
+                                    Haptic.tap()
+                                    inputText = item
+                                } label: {
+                                    HStack {
+                                        Image(systemName: "clock.arrow.circlepath")
+                                            .font(.caption2)
+                                            .foregroundStyle(.blue)
+                                        Text(item)
+                                            .font(.footnote)
+                                            .multilineTextAlignment(.leading)
+                                            .lineLimit(2)
+                                        Spacer()
+                                    }
+                                    .padding(10)
+                                    .background(Color.blue.opacity(0.08))
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                }
+                                .buttonStyle(.plain)
+                                .disabled(isDispatching)
+                            }
+                        }
+                    }
+
                     // 예시 prompts
                     VStack(alignment: .leading, spacing: 8) {
                         Text("예시")
@@ -54,6 +109,7 @@ struct CommandInputView: View {
                             .foregroundStyle(.tertiary)
                         ForEach(examplePrompts, id: \.self) { example in
                             Button {
+                                Haptic.tap()
                                 inputText = example
                             } label: {
                                 HStack {
@@ -255,12 +311,15 @@ struct CommandInputView: View {
         errorMessage = nil
         lastResponse = nil
         liveEvents = []
+        Haptic.tap(.medium)
+        saveToHistory(trimmed)
 
         // 1. C-6: async dispatch — session_id 즉시 받기
         let response: CommandResponse
         do {
             response = try await OrchestratorAPI.dispatchAsync(input: trimmed)
         } catch {
+            Haptic.error()
             errorMessage = error.localizedDescription
             isDispatching = false
             return
@@ -288,8 +347,14 @@ struct CommandInputView: View {
                     }
                     break
                 }
-                if event.type == "session.completed" || event.type == "session.failed" {
-                    // 완료 — 짧게 보여주고 자동 dismiss
+                if event.type == "session.completed" {
+                    Haptic.success()
+                    try? await Task.sleep(for: .milliseconds(800))
+                    dismiss()
+                    break
+                }
+                if event.type == "session.failed" {
+                    Haptic.error()
                     try? await Task.sleep(for: .milliseconds(800))
                     dismiss()
                     break

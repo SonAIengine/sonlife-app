@@ -34,17 +34,60 @@ struct TaskInboxView: View {
     @State private var liveStates: [String: LiveSessionState] = [:]
     @State private var streamTasks: [String: Task<Void, Never>] = [:]
 
-    var body: some View {
+    // C: 스와이프 액션 처리 중인 토큰 (중복 방지)
+    @State private var processingApprovalTokens: Set<String> = []
+
+    private var isFullyEmpty: Bool {
+        pendingApprovals.isEmpty && runningSessions.isEmpty && doneSessions.isEmpty
+    }
+
+    // MARK: - Empty state
+
+    private var emptyStateView: some View {
+        ContentUnavailableView {
+            Label("아직 작업이 없어요", systemImage: "tray")
+        } description: {
+            Text("상단 + 버튼으로 새 명령을 시작하거나\n스킬을 선택해 실행할 수 있어요.")
+        } actions: {
+            Button {
+                Haptic.tap()
+                showingCommandInput = true
+            } label: {
+                Label("새 작업 시작", systemImage: "plus.circle.fill")
+            }
+            .buttonStyle(.borderedProminent)
+        }
+    }
+
+    // MARK: - Inbox list
+
+    private var inboxList: some View {
         List {
             if !pendingApprovals.isEmpty {
                 Section {
                     ForEach(pendingApprovals) { approval in
                         Button {
+                            Haptic.tap()
                             selectedApproval = approval
                         } label: {
                             PendingApprovalRow(approval: approval)
                         }
                         .buttonStyle(.plain)
+                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                            Button {
+                                Task { await quickApprove(approval) }
+                            } label: {
+                                Label("승인", systemImage: "checkmark")
+                            }
+                            .tint(.green)
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button(role: .destructive) {
+                                Task { await quickReject(approval) }
+                            } label: {
+                                Label("거절", systemImage: "xmark")
+                            }
+                        }
                     }
                 } header: {
                     InboxSectionHeader(
@@ -60,6 +103,7 @@ struct TaskInboxView: View {
                 Section {
                     ForEach(runningSessions) { session in
                         Button {
+                            Haptic.tap()
                             selectedSession = session
                         } label: {
                             InboxSessionRow(session: session, liveState: liveStates[session.id])
@@ -76,8 +120,10 @@ struct TaskInboxView: View {
                 }
             }
 
-            Section {
-                if doneSessions.isEmpty {
+            // 완료: 날짜 그룹
+            let groups = groupedDoneSessions()
+            if groups.isEmpty && doneSessions.isEmpty {
+                Section {
                     HStack {
                         Spacer()
                         Text(isLoading ? "불러오는 중..." : "완료된 작업이 없습니다")
@@ -87,34 +133,164 @@ struct TaskInboxView: View {
                     }
                     .padding(.vertical, 8)
                     .listRowBackground(Color.clear)
-                } else {
-                    ForEach(doneSessions) { session in
-                        Button {
-                            selectedSession = session
-                        } label: {
-                            InboxSessionRow(session: session, liveState: nil)
+                } header: {
+                    InboxSectionHeader(
+                        icon: "checkmark.circle.fill",
+                        color: .green,
+                        title: "완료",
+                        count: 0
+                    )
+                }
+            } else {
+                ForEach(groups, id: \.title) { group in
+                    Section {
+                        ForEach(group.sessions) { session in
+                            Button {
+                                Haptic.tap()
+                                selectedSession = session
+                            } label: {
+                                InboxSessionRow(session: session, liveState: nil)
+                            }
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
+                    } header: {
+                        InboxSectionHeader(
+                            icon: group.icon,
+                            color: group.color,
+                            title: group.title,
+                            count: group.sessions.count
+                        )
                     }
                 }
-            } header: {
-                InboxSectionHeader(
-                    icon: "checkmark.circle.fill",
-                    color: .green,
-                    title: "완료",
-                    count: doneSessions.count
-                )
             }
 
-            if let error = errorMessage, pendingApprovals.isEmpty, runningSessions.isEmpty, doneSessions.isEmpty {
+            if let error = errorMessage {
                 Section {
-                    Text(error)
-                        .font(.footnote)
-                        .foregroundStyle(.red)
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label("불러오기 실패", systemImage: "exclamationmark.triangle")
+                            .font(.footnote.weight(.medium))
+                            .foregroundStyle(.red)
+                        Text(error)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(3)
+                        Button {
+                            Haptic.tap()
+                            Task { await loadAll() }
+                        } label: {
+                            Label("재시도", systemImage: "arrow.clockwise")
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                    }
                 }
             }
         }
         .listStyle(.insetGrouped)
+    }
+
+    // MARK: - 날짜 그룹핑
+
+    private struct DoneGroup {
+        let title: String
+        let icon: String
+        let color: Color
+        let sessions: [OrchestratorSession]
+    }
+
+    private func groupedDoneSessions() -> [DoneGroup] {
+        guard !doneSessions.isEmpty else { return [] }
+        let cal = Calendar.current
+        let now = Date()
+
+        var today: [OrchestratorSession] = []
+        var yesterday: [OrchestratorSession] = []
+        var thisWeek: [OrchestratorSession] = []
+        var earlier: [OrchestratorSession] = []
+
+        for session in doneSessions {
+            guard let date = parseDate(session.startedAt) else {
+                earlier.append(session)
+                continue
+            }
+            if cal.isDateInToday(date) {
+                today.append(session)
+            } else if cal.isDateInYesterday(date) {
+                yesterday.append(session)
+            } else if cal.isDate(date, equalTo: now, toGranularity: .weekOfYear) {
+                thisWeek.append(session)
+            } else {
+                earlier.append(session)
+            }
+        }
+
+        var groups: [DoneGroup] = []
+        if !today.isEmpty {
+            groups.append(DoneGroup(title: "오늘", icon: "checkmark.circle.fill", color: .green, sessions: today))
+        }
+        if !yesterday.isEmpty {
+            groups.append(DoneGroup(title: "어제", icon: "checkmark.circle", color: .green.opacity(0.8), sessions: yesterday))
+        }
+        if !thisWeek.isEmpty {
+            groups.append(DoneGroup(title: "이번 주", icon: "calendar", color: .gray, sessions: thisWeek))
+        }
+        if !earlier.isEmpty {
+            groups.append(DoneGroup(title: "이전", icon: "archivebox", color: .gray.opacity(0.7), sessions: earlier))
+        }
+        return groups
+    }
+
+    private func parseDate(_ iso: String) -> Date? {
+        let f1 = ISO8601DateFormatter()
+        f1.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        if let d = f1.date(from: iso) { return d }
+        let f2 = ISO8601DateFormatter()
+        f2.formatOptions = [.withInternetDateTime]
+        return f2.date(from: iso)
+    }
+
+    // MARK: - 빠른 승인/거절 (스와이프)
+
+    @MainActor
+    private func quickApprove(_ approval: ApprovalDetail) async {
+        guard !processingApprovalTokens.contains(approval.token) else { return }
+        processingApprovalTokens.insert(approval.token)
+        defer { processingApprovalTokens.remove(approval.token) }
+        do {
+            _ = try await OrchestratorAPI.approve(token: approval.token, modifiedArgs: nil)
+            Haptic.success()
+            await loadAll()
+        } catch {
+            Haptic.error()
+            errorMessage = "승인 실패: \(error.localizedDescription)"
+        }
+    }
+
+    @MainActor
+    private func quickReject(_ approval: ApprovalDetail) async {
+        guard !processingApprovalTokens.contains(approval.token) else { return }
+        processingApprovalTokens.insert(approval.token)
+        defer { processingApprovalTokens.remove(approval.token) }
+        do {
+            _ = try await OrchestratorAPI.reject(token: approval.token, reason: "인박스에서 거절")
+            Haptic.warning()
+            await loadAll()
+        } catch {
+            Haptic.error()
+            errorMessage = "거절 실패: \(error.localizedDescription)"
+        }
+    }
+
+    // MARK: - body wrapper
+
+    var body: some View {
+        Group {
+            if isFullyEmpty && !isLoading && errorMessage == nil {
+                emptyStateView
+            } else {
+                inboxList
+            }
+        }
         .navigationTitle("작업")
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
