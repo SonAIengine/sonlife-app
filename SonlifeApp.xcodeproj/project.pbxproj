@@ -23,7 +23,6 @@
 		392227DBF6A25BCBBF2D5241 /* MemoryStatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3857F70083709AF4836CC656 /* MemoryStatsView.swift */; };
 		3D676AA441A98CFFBD9B8898 /* RecordingAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = D650DFEE7C02176D018F0B14 /* RecordingAttributes.swift */; };
 		3EA0AF94CEE89909CBCFC468 /* Haptic.swift in Sources */ = {isa = PBXBuildFile; fileRef = E88D4D17D6410CE852595CBF /* Haptic.swift */; };
-		A1B2C3D4E5F60718192A3B4C /* OfflineQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1E2F3A4B5C60718293A4B5D /* OfflineQueue.swift */; };
 		3EC20A35FC6586E4EA67EE58 /* Chunk.swift in Sources */ = {isa = PBXBuildFile; fileRef = F24DC61161718D9A40130B4B /* Chunk.swift */; };
 		4124635DDAE717AA2B8F22BE /* LocationTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 791141A6AD10AC5CD4F07F31 /* LocationTracker.swift */; };
 		4EB468F46A971448E2B096B3 /* SSEClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE53E9A83394C73B0BE3BD29 /* SSEClient.swift */; };
@@ -37,27 +36,36 @@
 		5F6E78B351AF0F5499D4822B /* QualityMetricsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 669095BC059E81D6729DBB38 /* QualityMetricsView.swift */; };
 		6233DC78CA5DAC295338DC8E /* SessionListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 302D7BAD02239BFE95DA41A5 /* SessionListView.swift */; };
 		759216A92DA3F69CD7AEB290 /* OrchestratorModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B11020DE21E3672FA8364B /* OrchestratorModels.swift */; };
+		7E86D49C2F8BD46200D97ABB /* SonlifeWatch Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 7E86D4922F8BD46000D97ABB /* SonlifeWatch Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		86D732EAD84A6B28111361DA /* SonlifeAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23208DF6879E75D410F1BB90 /* SonlifeAppApp.swift */; };
 		8DC6776F201DD4C5CE3F1753 /* SessionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6793E222635D42106BC5962 /* SessionDetailView.swift */; };
 		A01C90CA879679BD2C4E4976 /* TaskInboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D718BE03818C4F253C066849 /* TaskInboxView.swift */; };
+		A1B2C3D4E5F60718192A3B4C /* OfflineQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1E2F3A4B5C60718293A4B5D /* OfflineQueue.swift */; };
 		A204D2751F0F29F7FA916632 /* SonLifeWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43F81FC68E7598A35C8C7FAD /* SonLifeWidgetBundle.swift */; };
 		A506B16BC7EC58473C56B5E6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBF2D3242875E6D8B3B2B682 /* ContentView.swift */; };
 		A6793520B5E5D42E4B57D55F /* VADMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A7C1D1FEBF929706E704C3 /* VADMonitor.swift */; };
 		B3A43A5532CE0AC5F7B6D78F /* RecordingDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B901045F6314E749FB9EC43 /* RecordingDetailView.swift */; };
 		BEF16C50CA5F79E576C2534E /* FeedbackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50E5B886F37C125525E5494F /* FeedbackView.swift */; };
 		C0145F94FC847B40A7856441 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C9FF92FC8160EDA69262158 /* SettingsView.swift */; };
+		D2F1A3B4C5D6E7F809102030 /* SonlifeIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2F1A3B4C5D6E7F809102031 /* SonlifeIntents.swift */; };
 		D64D25C37313E858CFDF77FA /* ApprovalSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 058E667057DEC875B2988207 /* ApprovalSheetView.swift */; };
 		DA8E3AB2D7F39EEE5B597B44 /* BudgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F77DDC5E3788CFD159CE6B3 /* BudgetView.swift */; };
 		DBF84366AC020FC2485C409D /* SonLifeWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3700A2ABDB1FEBFB10085027 /* SonLifeWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E1B7889E71D6DB45ACB7F513 /* SkillPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 141DD0D3CB75BAD886A32C0F /* SkillPickerView.swift */; };
 		EE72B5E5FF868BDB9986EAF2 /* AudioLevelMeterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F6A3D1C5F04C8FA6D76CB16 /* AudioLevelMeterView.swift */; };
 		F3D8C4C21B7A085B96ECBD84 /* LifeLogControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B1138EEC7185EE2E58E82A4 /* LifeLogControlView.swift */; };
-		D2F1A3B4C5D6E7F809102030 /* SonlifeIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2F1A3B4C5D6E7F809102031 /* SonlifeIntents.swift */; };
 		F856027FFED5D5E9C37E1E08 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FD4D02F58E925BDA8FA878D5 /* Assets.xcassets */; };
 		F91EDFFFD97622BAA12A7B13 /* ChunkUploader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 893BAC8D8B088C5A52B25EFA /* ChunkUploader.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		7E86D49A2F8BD46200D97ABB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1CFF74ACA30D8B3F19620C70 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7E86D4912F8BD46000D97ABB;
+			remoteInfo = "SonlifeWatch Watch App";
+		};
 		9F5D6A2CFF152E279569E4A7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 1CFF74ACA30D8B3F19620C70 /* Project object */;
@@ -68,6 +76,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		7E86D49D2F8BD46200D97ABB /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				7E86D49C2F8BD46200D97ABB /* SonlifeWatch Watch App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A7C0FBD73193A78A44A56E63 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -82,6 +101,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		00A1B2C3D4E5F6071819BBBB /* WidgetData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetData.swift; sourceTree = "<group>"; };
+		00A1B2C3D4E5F6071819EEEE /* PendingApprovalsWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingApprovalsWidget.swift; sourceTree = "<group>"; };
 		00D76B16306DF166BC8BF867 /* Recording.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recording.swift; sourceTree = "<group>"; };
 		058E667057DEC875B2988207 /* ApprovalSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApprovalSheetView.swift; sourceTree = "<group>"; };
 		0707C82C16BCE2061E6A3A7E /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
@@ -93,7 +114,7 @@
 		302D7BAD02239BFE95DA41A5 /* SessionListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionListView.swift; sourceTree = "<group>"; };
 		3280D56D2C4346301D69422E /* AudioRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorder.swift; sourceTree = "<group>"; };
 		34A7C1D1FEBF929706E704C3 /* VADMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VADMonitor.swift; sourceTree = "<group>"; };
-		3700A2ABDB1FEBFB10085027 /* SonLifeWidgetExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = SonLifeWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		3700A2ABDB1FEBFB10085027 /* SonLifeWidgetExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.extensionkit-extension"; path = SonLifeWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		3857F70083709AF4836CC656 /* MemoryStatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryStatsView.swift; sourceTree = "<group>"; };
 		3B1138EEC7185EE2E58E82A4 /* LifeLogControlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifeLogControlView.swift; sourceTree = "<group>"; };
 		3B901045F6314E749FB9EC43 /* RecordingDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingDetailView.swift; sourceTree = "<group>"; };
@@ -101,11 +122,12 @@
 		455AB03D2B94AA822BDA923C /* RecordingEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingEngine.swift; sourceTree = "<group>"; };
 		50E5B886F37C125525E5494F /* FeedbackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackView.swift; sourceTree = "<group>"; };
 		57C1BD607266EB615AF4EDCF /* AgentDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentDashboardView.swift; sourceTree = "<group>"; };
-		5C11E6D0FF4B113D6EFC45CA /* SonlifeApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SonlifeApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5C11E6D0FF4B113D6EFC45CA /* SonlifeApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SonlifeApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		669095BC059E81D6729DBB38 /* QualityMetricsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QualityMetricsView.swift; sourceTree = "<group>"; };
 		6F77DDC5E3788CFD159CE6B3 /* BudgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetView.swift; sourceTree = "<group>"; };
 		791141A6AD10AC5CD4F07F31 /* LocationTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationTracker.swift; sourceTree = "<group>"; };
 		7E1C507D92E7DFBD987BF889 /* MarkdownText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownText.swift; sourceTree = "<group>"; };
+		7E86D4922F8BD46000D97ABB /* SonlifeWatch Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SonlifeWatch Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		893BAC8D8B088C5A52B25EFA /* ChunkUploader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChunkUploader.swift; sourceTree = "<group>"; };
 		8B22B375F12F0CFB861FF2D9 /* CommandInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandInputView.swift; sourceTree = "<group>"; };
 		900F43CFDA48942DB97C02DC /* OrchestratorSessionHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrchestratorSessionHistoryView.swift; sourceTree = "<group>"; };
@@ -115,22 +137,38 @@
 		B446D7DC218291750F26EDC6 /* SessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionManager.swift; sourceTree = "<group>"; };
 		B83A37312E737EFB7EBDB3D3 /* AgentSessionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentSessionDetailView.swift; sourceTree = "<group>"; };
 		CA0F936383052F1EE4A16347 /* OrchestratorAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrchestratorAPI.swift; sourceTree = "<group>"; };
+		D1E2F3A4B5C60718293A4B5D /* OfflineQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineQueue.swift; sourceTree = "<group>"; };
+		D2F1A3B4C5D6E7F809102031 /* SonlifeIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SonlifeIntents.swift; sourceTree = "<group>"; };
 		D650DFEE7C02176D018F0B14 /* RecordingAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingAttributes.swift; sourceTree = "<group>"; };
 		D718BE03818C4F253C066849 /* TaskInboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskInboxView.swift; sourceTree = "<group>"; };
 		DBF2D3242875E6D8B3B2B682 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		E4F0CD21F732C80869F81376 /* AudioSessionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSessionHandler.swift; sourceTree = "<group>"; };
 		E6793E222635D42106BC5962 /* SessionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionDetailView.swift; sourceTree = "<group>"; };
-		00A1B2C3D4E5F6071819BBBB /* WidgetData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetData.swift; sourceTree = "<group>"; };
-		00A1B2C3D4E5F6071819EEEE /* PendingApprovalsWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingApprovalsWidget.swift; sourceTree = "<group>"; };
-		D1E2F3A4B5C60718293A4B5D /* OfflineQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineQueue.swift; sourceTree = "<group>"; };
 		E88D4D17D6410CE852595CBF /* Haptic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptic.swift; sourceTree = "<group>"; };
 		E901EDE672F6DC7C032E42EC /* SonLifeLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SonLifeLiveActivity.swift; sourceTree = "<group>"; };
 		F0B11020DE21E3672FA8364B /* OrchestratorModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrchestratorModels.swift; sourceTree = "<group>"; };
 		F24DC61161718D9A40130B4B /* Chunk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chunk.swift; sourceTree = "<group>"; };
 		FD4D02F58E925BDA8FA878D5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		D2F1A3B4C5D6E7F809102031 /* SonlifeIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SonlifeIntents.swift; sourceTree = "<group>"; };
 		FE53E9A83394C73B0BE3BD29 /* SSEClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSEClient.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		7E86D4932F8BD46000D97ABB /* SonlifeWatch Watch App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "SonlifeWatch Watch App";
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		7E86D48F2F8BD46000D97ABB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		0F5E6640E60E227FB8BC00AF /* Models */ = {
@@ -170,14 +208,6 @@
 			path = SonlifeApp;
 			sourceTree = "<group>";
 		};
-		D2F1A3B4C5D6E7F809102032 /* Intents */ = {
-			isa = PBXGroup;
-			children = (
-				D2F1A3B4C5D6E7F809102031 /* SonlifeIntents.swift */,
-			);
-			path = Intents;
-			sourceTree = "<group>";
-		};
 		7D346FA3116CEB31FBF6E676 /* Engine */ = {
 			isa = PBXGroup;
 			children = (
@@ -202,6 +232,7 @@
 			children = (
 				5C11E6D0FF4B113D6EFC45CA /* SonlifeApp.app */,
 				3700A2ABDB1FEBFB10085027 /* SonLifeWidgetExtension.appex */,
+				7E86D4922F8BD46000D97ABB /* SonlifeWatch Watch App.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -212,6 +243,7 @@
 				D2A3D7A609EF6B58C62723F7 /* Shared */,
 				51D6A5B05C95407230571E1C /* SonlifeApp */,
 				3225AE8E4D95FB1E35C4C2D4 /* SonLifeWidget */,
+				7E86D4932F8BD46000D97ABB /* SonlifeWatch Watch App */,
 				8C5E0BB617E5FCC2674C1204 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -251,6 +283,14 @@
 			path = Shared;
 			sourceTree = "<group>";
 		};
+		D2F1A3B4C5D6E7F809102032 /* Intents */ = {
+			isa = PBXGroup;
+			children = (
+				D2F1A3B4C5D6E7F809102031 /* SonlifeIntents.swift */,
+			);
+			path = Intents;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -261,17 +301,41 @@
 				00AB8C119A49B72D1A719023 /* Sources */,
 				A672790DAAB906EF56304FB8 /* Resources */,
 				A7C0FBD73193A78A44A56E63 /* Embed Foundation Extensions */,
+				7E86D49D2F8BD46200D97ABB /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				38F895183C0C9D344F2FDE9C /* PBXTargetDependency */,
+				7E86D49B2F8BD46200D97ABB /* PBXTargetDependency */,
 			);
 			name = SonlifeApp;
 			packageProductDependencies = (
 			);
 			productName = SonlifeApp;
 			productReference = 5C11E6D0FF4B113D6EFC45CA /* SonlifeApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+		7E86D4912F8BD46000D97ABB /* SonlifeWatch Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7E86D4A02F8BD46200D97ABB /* Build configuration list for PBXNativeTarget "SonlifeWatch Watch App" */;
+			buildPhases = (
+				7E86D48E2F8BD46000D97ABB /* Sources */,
+				7E86D48F2F8BD46000D97ABB /* Frameworks */,
+				7E86D4902F8BD46000D97ABB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				7E86D4932F8BD46000D97ABB /* SonlifeWatch Watch App */,
+			);
+			name = "SonlifeWatch Watch App";
+			packageProductDependencies = (
+			);
+			productName = "SonlifeWatch Watch App";
+			productReference = 7E86D4922F8BD46000D97ABB /* SonlifeWatch Watch App.app */;
 			productType = "com.apple.product-type.application";
 		};
 		A902A63259F343B5739A1F7A /* SonLifeWidgetExtension */ = {
@@ -298,11 +362,15 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
+				LastSwiftUpdateCheck = 2640;
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					005CC89A07342BD79A0E7F7B = {
 						DevelopmentTeam = ASPD4J464Z;
 						ProvisioningStyle = Automatic;
+					};
+					7E86D4912F8BD46000D97ABB = {
+						CreatedOnToolsVersion = 26.4;
 					};
 					A902A63259F343B5739A1F7A = {
 						DevelopmentTeam = ASPD4J464Z;
@@ -326,11 +394,19 @@
 			targets = (
 				A902A63259F343B5739A1F7A /* SonLifeWidgetExtension */,
 				005CC89A07342BD79A0E7F7B /* SonlifeApp */,
+				7E86D4912F8BD46000D97ABB /* SonlifeWatch Watch App */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		7E86D4902F8BD46000D97ABB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A672790DAAB906EF56304FB8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -402,6 +478,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		7E86D48E2F8BD46000D97ABB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -409,6 +492,11 @@
 			isa = PBXTargetDependency;
 			target = A902A63259F343B5739A1F7A /* SonLifeWidgetExtension */;
 			targetProxy = 9F5D6A2CFF152E279569E4A7 /* PBXContainerItemProxy */;
+		};
+		7E86D49B2F8BD46200D97ABB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7E86D4912F8BD46000D97ABB /* SonlifeWatch Watch App */;
+			targetProxy = 7E86D49A2F8BD46200D97ABB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -510,6 +598,92 @@
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.9;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		7E86D49E2F8BD46200D97ABB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = "SonlifeWatch Watch App/SonlifeWatch.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ASPD4J464Z;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = SonlifeWatch;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.sonaiengine.sonlifeapp;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sonaiengine.sonlifeapp.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.4;
+			};
+			name = Debug;
+		};
+		7E86D49F2F8BD46200D97ABB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = "SonlifeWatch Watch App/SonlifeWatch.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ASPD4J464Z;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = SonlifeWatch;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.sonaiengine.sonlifeapp;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sonaiengine.sonlifeapp.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 26.4;
 			};
 			name = Release;
 		};
@@ -646,6 +820,15 @@
 			buildConfigurations = (
 				B90D24B6E5A31224EAC37BAD /* Debug */,
 				CE243AF0816F910861BBDD5C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		7E86D4A02F8BD46200D97ABB /* Build configuration list for PBXNativeTarget "SonlifeWatch Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7E86D49E2F8BD46200D97ABB /* Debug */,
+				7E86D49F2F8BD46200D97ABB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
